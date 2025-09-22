@@ -1,9 +1,12 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 import io
 from typing import Optional
+from fastapi.encoders import jsonable_encoder
+import asyncio
+from datetime import datetime, timezone
 from pydantic import BaseModel
 from typing import Dict, List, Any, Optional
 import uvicorn
@@ -16,6 +19,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models.stress_detector import StressDetector
 from models.recommendation_engine import RecommendationEngine
 from config import Config
+import requests
+import numpy as np
 
 app = FastAPI(
     title="Stress Monitoring System API",
@@ -35,6 +40,35 @@ app.add_middleware(
 # Global variables for models
 stress_detector = None
 recommendation_engine = None
+
+# Simple in-memory connection manager for WebSocket broadcasting
+class ConnectionManager:
+    def __init__(self):
+        self._active: List[WebSocket] = []
+        self._lock = asyncio.Lock()
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        async with self._lock:
+            self._active.append(websocket)
+
+    async def disconnect(self, websocket: WebSocket):
+        async with self._lock:
+            if websocket in self._active:
+                self._active.remove(websocket)
+
+    async def broadcast(self, message: Dict[str, Any]):
+        data = jsonable_encoder(_sanitize_numpy(message))
+        async with self._lock:
+            websockets = list(self._active)
+        for ws in websockets:
+            try:
+                await ws.send_json(data)
+            except Exception:
+                # Drop dead connections silently
+                await self.disconnect(ws)
+
+manager = ConnectionManager()
 
 # Pydantic models for API
 class StressData(BaseModel):
@@ -62,6 +96,19 @@ class StressPrediction(BaseModel):
     confidence: float
     probabilities: Dict[str, float]
 
+class StreamSample(BaseModel):
+    heart_rate: float
+    sleep_hours: float
+    activity_level: float
+    mood_score: float
+    work_stress: float
+    social_interaction: float
+    caffeine_intake: float
+    exercise_frequency: float
+    age: int
+    gender: int
+    timestamp: Optional[str] = None  # ISO8601 (client-supplied optional)
+
 class Recommendations(BaseModel):
     immediate_actions: List[str]
     books: List[str]
@@ -70,6 +117,15 @@ class Recommendations(BaseModel):
     meditation: List[str]
     social: List[str]
     long_term: List[str]
+
+class CoachChatRequest(BaseModel):
+    message: str
+    history: Optional[List[Dict[str, str]]] = None
+
+class CoachChatResponse(BaseModel):
+    reply: str
+    sos: bool = False
+    disclaimer: str = "This assistant provides general wellness information and is not a substitute for professional medical advice. If you are in crisis, seek immediate help."
 
 # Dependency to get stress detector
 def get_stress_detector():
@@ -105,6 +161,127 @@ async def startup_event():
     # Initialize recommendation engine
     get_recommendation_engine()
     print("System initialized successfully!")
+
+def _sanitize_numpy(obj: Any) -> Any:
+    """Recursively convert NumPy types to plain Python for JSON encoding."""
+    try:
+        if isinstance(obj, dict):
+            return {k: _sanitize_numpy(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [_sanitize_numpy(x) for x in obj]
+        if isinstance(obj, tuple):
+            return tuple(_sanitize_numpy(x) for x in obj)
+        # Scalars
+        if isinstance(obj, (np.integer,)):
+            return int(obj)
+        if isinstance(obj, (np.floating,)):
+            return float(obj)
+        if isinstance(obj, (np.bool_,)):
+            return bool(obj)
+        if isinstance(obj, (np.ndarray,)):
+            return obj.tolist()
+        return obj
+    except Exception:
+        return obj
+
+def _triage_needs_sos(text: str) -> bool:
+    if not text:
+        return False
+    keywords = [
+        "suicide", "kill myself", "self harm", "overdose", "can't breathe",
+        "chest pain", "heart attack", "stroke", "fainting", "unconscious"
+    ]
+    lowered = text.lower()
+    return any(k in lowered for k in keywords)
+
+@app.post("/api/coach/chat", response_model=CoachChatResponse)
+async def coach_chat(req: CoachChatRequest):
+    """Proxy chat to local Ollama with minimal safety triage."""
+    try:
+        sos = _triage_needs_sos(req.message)
+        if sos:
+            reply = (
+                "This sounds urgent. Please seek immediate help: call local emergency services or visit the nearest ER. "
+                "Try slow breathing while you get help: inhale 4s, hold 4s, exhale 6s."
+            )
+            return CoachChatResponse(reply=reply, sos=True)
+
+        ollama_host = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
+        url = f"{ollama_host.rstrip('/')}/api/generate"
+        system_prompt = (
+            "You are a supportive wellness assistant. Provide calm, practical, evidence-informed guidance for stress relief. "
+            "Do not diagnose. Suggest simple actions (breathing, grounding, hydration, short walk, social support). "
+            "Answer concisely: use at most 3 short bullet points and a single-line caution when urgent care is needed."
+        )
+        # Build a concise prompt with optional short history
+        context = "\n".join(
+            [f"{m.get('role','user')}: {m.get('content','')}" for m in (req.history or [])][-6:]
+        )
+        prompt = f"System: {system_prompt}\n{context}\nUser: {req.message}\nAssistant:"
+        payload = {
+            "model": os.getenv("OLLAMA_MODEL", "llama3"),
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": 0.3}
+        }
+        r = requests.post(url, json=payload, timeout=60)
+        if not r.ok:
+            raise HTTPException(status_code=502, detail="Ollama not reachable or returned error. Ensure it is running and OLLAMA_HOST/OLLAMA_MODEL are set.")
+        data = r.json()
+        # Be tolerant to different response shapes
+        reply = (
+            data.get("response")
+            or data.get("message")
+            or (data.get("choices", [{}])[0] or {}).get("message", {}).get("content")
+            or ""
+        )
+        if isinstance(reply, dict):
+            # Some backends may nest content
+            reply = reply.get("content", "")
+        if not reply:
+            raise HTTPException(status_code=502, detail="Empty response from Ollama.")
+        return CoachChatResponse(reply=reply, sos=False)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Coach chat failed: {str(e)}")
+
+@app.post("/api/stream/ingest")
+async def ingest_stream_sample(sample: StreamSample, detector: StressDetector = Depends(get_stress_detector)):
+    """Ingest a single wearable/phone sample, run prediction, and broadcast to subscribers."""
+    try:
+        payload = sample.dict()
+        # Ensure timestamp
+        if not payload.get("timestamp"):
+            payload["timestamp"] = datetime.now(timezone.utc).isoformat()
+
+        # Build features expected by the model
+        features = {k: payload[k] for k in [
+            "heart_rate","sleep_hours","activity_level","mood_score","work_stress",
+            "social_interaction","caffeine_intake","exercise_frequency","age","gender"
+        ]}
+
+        pred = _sanitize_numpy(detector.predict(features))
+        event = _sanitize_numpy({
+            "type": "prediction",
+            "timestamp": payload["timestamp"],
+            "input": features,
+            "output": pred,
+        })
+        # Broadcast asynchronously (fire-and-forget)
+        asyncio.create_task(manager.broadcast(event))
+        return event
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
+
+@app.websocket("/ws/stream")
+async def ws_stream(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        # Keep the connection alive; server pushes predictions on ingest
+        while True:
+            # Optionally receive pings or client filters; for now, just await to detect disconnects
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        await manager.disconnect(websocket)
 
 @app.get("/", response_class=HTMLResponse)
 async def root():

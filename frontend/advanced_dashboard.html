@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🧠 StressGuard Pro - AI-Powered Stress Management</title>
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgo=">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
@@ -79,6 +80,23 @@
             gap: 2rem;
             list-style: none;
         }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .chip {
+            padding: 0.4rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            background: rgba(255,255,255,0.08);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .chip:hover { background: rgba(255,255,255,0.15); }
 
         .nav-links a {
             color: white;
@@ -948,11 +966,15 @@
             <ul class="nav-links">
                 <li><a href="#stress-check" onclick="showTab('stress-check')" class="active"><i class="fas fa-stethoscope"></i> Stress Check</a></li>
                 <li><a href="#analytics" onclick="showTab('analytics')"><i class="fas fa-chart-bar"></i> Analytics</a></li>
-                <li><a href="#recommendations" onclick="showTab('recommendations')"><i class="fas fa-lightbulb"></i> AI Recommendations</a></li>
+                
                 <li><a href="#ai-coach" onclick="showTab('ai-coach')"><i class="fas fa-robot"></i> AI Coach</a></li>
                 <li><a href="#community" onclick="showTab('community')"><i class="fas fa-users"></i> Community</a></li>
                 <li><a href="#emergency" onclick="showTab('emergency')"><i class="fas fa-first-aid"></i> Emergency</a></li>
             </ul>
+            <div class="toolbar">
+                <button id="theme-toggle" class="chip" title="Toggle theme (L)"><i class="fas fa-moon"></i></button>
+                <button id="cmd-toggle" class="chip" title="Command palette (Ctrl+K)"><i class="fas fa-magnifying-glass"></i></button>
+            </div>
         </div>
     </nav>
 
@@ -962,7 +984,7 @@
             <p class="hero-subtitle">AI-Powered Stress Management & Mental Wellness Platform</p>
         </div>
 
-        <div class="stats-grid">
+        <div class="stats-grid" id="starter-stats" style="display:none;">
             <div class="stat-card">
                 <i class="fas fa-heartbeat stat-icon"></i>
                 <div class="stat-value" id="current-stress">--</div>
@@ -1070,34 +1092,12 @@
                             </div>
                         </div>
                         
-                        <div class="analytics-card">
-                            <h3>😊 Mood & Activity Correlation</h3>
-                            <div class="chart-container">
-                                <canvas id="moodChart"></canvas>
-                            </div>
-                        </div>
+                        <!-- Removed empty analytics cards for cleaner UI -->
                         
-                        <div class="analytics-card">
-                            <h3>💤 Sleep Quality Analysis</h3>
-                            <div class="chart-container">
-                                <canvas id="sleepChart"></canvas>
-                            </div>
-                        </div>
-                        
-                        <div class="analytics-card">
-                            <h3>🏃 Activity vs Stress</h3>
-                            <div class="chart-container">
-                                <canvas id="activityChart"></canvas>
-                            </div>
-                        </div>
+                        <!-- Removed Activity vs Stress card for cleaner UI -->
                     </div>
                     
-                    <div class="insights-section">
-                        <h3>🔍 AI Insights & Recommendations</h3>
-                        <div class="insights-grid" id="insights-grid">
-                            <!-- AI insights will be loaded here -->
-                        </div>
-                    </div>
+                    <!-- Removed Insights section for now -->
                     
                     <div class="data-export">
                         <h3>📤 Export Your Data</h3>
@@ -1115,48 +1115,7 @@
                     </div>
                 </div>
 
-                <div id="recommendations" class="tab-content">
-                    <h2>🤖 AI-Powered Recommendations</h2>
-                    <p>Get personalized advice based on your stress level and preferences</p>
-                    
-                    <div class="recommendations-form">
-                        <h3>Tell me about yourself for better recommendations:</h3>
-                        <form id="recommendations-form">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="user_interests">🎯 Your Interests</label>
-                                    <input type="text" id="user_interests" name="interests" placeholder="e.g., reading, music, nature, cooking" value="reading, music, nature">
-                                </div>
-                                <div class="form-group">
-                                    <label for="available_time">⏰ Available Time</label>
-                                    <select id="available_time" name="available_time">
-                                        <option value="15-30 minutes daily">15-30 minutes daily</option>
-                                        <option value="1-2 hours daily" selected>1-2 hours daily</option>
-                                        <option value="2-4 hours daily">2-4 hours daily</option>
-                                        <option value="Weekend only">Weekend only</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="preferred_activities">🏃 Preferred Activities</label>
-                                    <input type="text" id="preferred_activities" name="preferred_activities" placeholder="e.g., walking, meditation, yoga" value="walking, meditation, yoga">
-                                </div>
-                                <div class="form-group">
-                                    <label for="music_preferences">🎵 Music Preferences</label>
-                                    <input type="text" id="music_preferences" name="music_preferences" placeholder="e.g., classical, ambient, jazz" value="classical, ambient, jazz">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn" id="get-recommendations-btn">
-                                <i class="fas fa-magic"></i> Get AI Recommendations
-                            </button>
-                        </form>
-                    </div>
-                    
-                    <div id="recommendations-result" class="result-card" style="display: none;">
-                        <div id="recommendations-content" class="recommendations-grid"></div>
-                    </div>
-                </div>
+                
 
                 <div id="ai-coach" class="tab-content">
                     <h2>🤖 AI Stress Coach</h2>
@@ -1292,7 +1251,7 @@
                     </ul>
                 </div>
 
-                <div class="widget">
+                <div class="widget" id="starter-achievements" style="display:none;">
                     <h3>🏆 Recent Achievements</h3>
                     <div class="achievements">
                         <div class="achievement">
@@ -1333,6 +1292,14 @@
         <div class="pulse">
             <i class="fas fa-circle" style="color: #4ecdc4;"></i>
             Live Monitoring
+        </div>
+    </div>
+
+    <!-- Command Palette -->
+    <div id="cmd-palette" style="display:none; position:fixed; inset:0; backdrop-filter:blur(2px); background:rgba(0,0,0,0.3); z-index:2000;">
+        <div style="max-width:700px; margin:10% auto; background:#0f172a; color:#e2e8f0; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.4);">
+            <input id="cmd-input" placeholder="Type a command…" style="width:100%; padding:16px 18px; border:none; outline:none; background:#0b1222; color:#e2e8f0; border-bottom:1px solid #1f2a44; border-radius:12px 12px 0 0;" />
+            <div id="cmd-results" style="max-height:320px; overflow:auto; padding:8px 0;"></div>
         </div>
     </div>
 
@@ -1489,7 +1456,7 @@
             }
         });
 
-        function displayStressResult(result) {
+        async function displayStressResult(result) {
             const resultDiv = document.getElementById('stress-result');
             const levelDiv = document.getElementById('stress-level');
             const confidenceDiv = document.getElementById('stress-confidence');
@@ -1519,6 +1486,8 @@
             
             resultDiv.style.display = 'block';
             resultDiv.scrollIntoView({ behavior: 'smooth' });
+
+            // Removed AI auto-recommendations per request
         }
 
         function updateStats(result) {
@@ -1552,11 +1521,27 @@
         }
 
         function showError(message) {
-            alert('Error: ' + message);
+            showToast(message, 'error');
         }
 
-        // Recommendations form submission
-        document.getElementById('recommendations-form').addEventListener('submit', async (e) => {
+        // Toast notifications
+        function showToast(msg, type='info'){
+            const wrap = document.getElementById('toast-wrap') || (function(){
+                const d = document.createElement('div');
+                d.id='toast-wrap'; d.style.position='fixed'; d.style.top='16px'; d.style.right='16px'; d.style.zIndex='3000';
+                document.body.appendChild(d); return d; })();
+            const div = document.createElement('div');
+            div.style.margin='8px 0'; div.style.padding='10px 14px'; div.style.borderRadius='10px'; div.style.color='#e2e8f0';
+            div.style.background= type==='error' ? '#7f1d1d' : (type==='success' ? '#065f46' : '#1f2937');
+            div.style.boxShadow='0 10px 30px rgba(0,0,0,.25)';
+            div.textContent = msg;
+            wrap.appendChild(div);
+            setTimeout(()=>div.remove(), 3000);
+        }
+
+        // Recommendations form submission (section removed; guard to avoid null errors)
+        const __recForm = document.getElementById('recommendations-form');
+        if (__recForm) __recForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const btn = document.getElementById('get-recommendations-btn');
@@ -1727,58 +1712,74 @@
         function askAI(question) {
             const chatMessages = document.getElementById('chat-messages');
             const chatInput = document.getElementById('chat-input');
-            
-            // Add user message
+
+            // Add user message immediately
             addMessage(question, 'user');
-            
-            // Simulate AI response
-            setTimeout(() => {
-                const response = generateAIResponse(question);
-                addMessage(response, 'ai');
-            }, 1000);
+
+            // Add instant typing placeholder
+            const pending = document.createElement('div');
+            pending.className = 'message ai-message';
+            pending.innerHTML = '<div class="message-content"><strong>AI Coach:</strong> <span class="typing">Typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span></div>';
+            chatMessages.appendChild(pending);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Animate dots
+            (function animateDots(){
+                const dots = pending.querySelectorAll('.dot');
+                let i = 0; const id = setInterval(()=>{ dots.forEach((d,idx)=> d.style.visibility = (idx<=i? 'visible':'hidden')); i = (i+1)%3; if(!pending.isConnected) clearInterval(id); }, 350);
+            })();
+
+            // Timeout to keep UX responsive
+            const controller = new AbortController();
+            const timeout = setTimeout(()=>controller.abort(), 20000);
+
+            fetch('/api/coach/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: question, history: [] }),
+                signal: controller.signal
+            })
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => {
+                clearTimeout(timeout);
+                const text = (data && data.reply)
+                    ? (data.reply + (data.sos ? '\n\n[If this is an emergency, seek immediate help.]' : ''))
+                    : 'I had trouble responding. Please try again.';
+                pending.innerHTML = `<div class="message-content"><strong>AI Coach:</strong> ${text}</div>`;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch(() => {
+                clearTimeout(timeout);
+                pending.innerHTML = '<div class="message-content"><strong>AI Coach:</strong> I had trouble responding. Please try again.</div>';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
         }
 
         function addMessage(content, sender) {
             const chatMessages = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender}-message`;
-            messageDiv.innerHTML = `<div class="message-content"><strong>${sender === 'ai' ? 'AI Coach' : 'You'}:</strong> ${content}</div>`;
+            const short = summarize(content);
+            const id = 'm'+Math.random().toString(36).slice(2);
+            messageDiv.innerHTML = `<div class="message-content"><strong>${sender === 'ai' ? 'AI Coach' : 'You'}:</strong> <span id="${id}-short">${short}</span>`+
+                (short!==content ? ` <a href="#" id="${id}-toggle" style="color:#93c5fd;">Show more</a><span id="${id}-full" style="display:none;"> ${content}</span>` : '')+
+                `</div>`;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            const t = document.getElementById(`${id}-toggle`);
+            if (t) t.addEventListener('click', (e)=>{ e.preventDefault(); const full=document.getElementById(`${id}-full`); const sh=document.getElementById(`${id}-short`); if(full.style.display==='none'){ full.style.display='inline'; sh.style.display='none'; t.textContent='Show less'; } else { full.style.display='none'; sh.style.display='inline'; t.textContent='Show more'; } });
         }
 
-        function generateAIResponse(question) {
-            const responses = {
-                'stress': [
-                    "I understand you're feeling stressed. Let's try the 4-7-8 breathing technique: Inhale for 4 counts, hold for 7, exhale for 8. Repeat 3 times.",
-                    "When stress hits, remember the 5-4-3-2-1 grounding technique: Name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste.",
-                    "Take a moment to step back. What's one small thing you can control right now? Focus on that."
-                ],
-                'breathing': [
-                    "Try box breathing: Inhale for 4, hold for 4, exhale for 4, hold for 4. This activates your parasympathetic nervous system.",
-                    "Let's do belly breathing: Place one hand on your chest, one on your belly. Breathe so only your belly hand moves.",
-                    "The 4-7-8 technique is great: Inhale for 4, hold for 7, exhale for 8. It's like a natural tranquilizer."
-                ],
-                'sleep': [
-                    "Create a bedtime routine: No screens 1 hour before bed, cool room (65-68°F), and try reading or gentle stretching.",
-                    "Avoid caffeine after 2 PM and try magnesium or chamomile tea before bed. Your body needs 7-9 hours of quality sleep.",
-                    "Keep your bedroom dark and quiet. Consider blackout curtains and white noise if needed."
-                ],
-                'work-life': [
-                    "Set clear boundaries: No work emails after 6 PM, take lunch breaks away from your desk, and have a shutdown ritual.",
-                    "Try time-blocking: Schedule your work tasks and personal time in your calendar. Treat personal time as seriously as work meetings.",
-                    "Remember: You're not a machine. Rest and recovery make you more productive, not less."
-                ]
-            };
-            
-            const lowerQuestion = question.toLowerCase();
-            if (lowerQuestion.includes('stress')) return responses.stress[Math.floor(Math.random() * responses.stress.length)];
-            if (lowerQuestion.includes('breathing')) return responses.breathing[Math.floor(Math.random() * responses.breathing.length)];
-            if (lowerQuestion.includes('sleep')) return responses.sleep[Math.floor(Math.random() * responses.sleep.length)];
-            if (lowerQuestion.includes('work') || lowerQuestion.includes('balance')) return responses.work-life[Math.floor(Math.random() * responses.work-life.length)];
-            
-            return "I'm here to help! Could you tell me more about what's on your mind? I can help with stress management, breathing exercises, sleep tips, or work-life balance.";
+        function summarize(text){
+            if(!text) return '';
+            // keep first sentence or first 180 chars; trim markdown
+            const s = text.replace(/\n+/g,' ').replace(/\*\*/g,'').trim();
+            const first = s.split(/(?<=[.!?])\s+/)[0] || s;
+            const clipped = first.length>180 ? first.slice(0,177)+'…' : first;
+            return clipped;
         }
+
+        // generateAIResponse removed; handled by backend
 
         // Community functionality
         function loadAchievements() {
@@ -1978,21 +1979,80 @@
             const sendButton = document.getElementById('send-message');
             
             if (chatInput && sendButton) {
-                sendButton.addEventListener('click', () => {
+                const doSend = () => {
                     const message = chatInput.value.trim();
-                    if (message) {
-                        askAI(message);
-                        chatInput.value = '';
-                    }
-                });
-                
-                chatInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        sendButton.click();
-                    }
+                    if (!message) return;
+                    sendButton.disabled = true;
+                    askAI(message);
+                    chatInput.value = '';
+                    setTimeout(() => { sendButton.disabled = false; chatInput.focus(); }, 200);
+                };
+                sendButton.addEventListener('click', (e) => { e.preventDefault(); doSend(); });
+                chatInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); }
                 });
             }
         });
+
+        // Real-time WS + auto-ingest
+        (function(){
+            const API_BASE = location.origin;
+            const WS_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/stream';
+            const FIELDS = ['heart_rate','sleep_hours','activity_level','mood_score','work_stress','social_interaction','caffeine_intake','exercise_frequency','age','gender'];
+
+            // Status badge
+            const status = document.createElement('div');
+            status.style.position='fixed';status.style.right='16px';status.style.bottom='16px';status.style.zIndex='9999';
+            status.style.padding='10px 12px';status.style.borderRadius='10px';status.style.font='12px system-ui,Segoe UI,Roboto,Arial';
+            status.style.boxShadow='0 6px 16px rgba(0,0,0,0.15)';status.style.background='linear-gradient(135deg,#151a2b,#1f2a44)';status.style.color='#dbeafe';
+            status.innerHTML='<b>Live Stream</b>: connecting…';
+            document.body.appendChild(status);
+
+            let ws;
+            function connectWS(){
+                try{
+                    ws=new WebSocket(WS_URL);
+                    ws.onopen=()=>status.innerHTML='<b>Live Stream</b>: connected';
+                    ws.onclose=()=>status.innerHTML='<b>Live Stream</b>: disconnected';
+                    ws.onerror=()=>status.innerHTML='<b>Live Stream</b>: error';
+                    ws.onmessage=(e)=>{
+                        try{
+                            const msg=JSON.parse(e.data);
+                            if(msg&&msg.type==='prediction'){
+                                const lbl=msg.output?.stress_label??msg.output?.stress_level;
+                                const conf=msg.output?.confidence?Math.round(msg.output.confidence*100)+'%':'';
+                                status.innerHTML=`<b>Live Stream</b>: ${lbl} ${conf}`;
+                            }
+                        }catch{}
+                    };
+                }catch(err){console.warn('WS failed',err)}
+            }
+            connectWS();
+
+            function debounce(fn,ms){let t;return (...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)};}
+            function readField(k){
+                const el=document.getElementById(k)||document.querySelector(`[name="${k}"]`);
+                if(!el) return null;
+                if(k==='gender') return parseInt(el.value||'1',10)||1;
+                const num=parseFloat(el.value);
+                return Number.isFinite(num)?num:null;
+            }
+            function collect(){
+                const s={};
+                for(const k of FIELDS){ const v=readField(k); if(v==null) return null; s[k]=v; }
+                return s;
+            }
+            const send=debounce(async ()=>{
+                const body=collect(); if(!body) return;
+                try{ await fetch(`${API_BASE}/api/stream/ingest`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});}catch{}
+            },250);
+            const bind=()=>{
+                FIELDS.forEach(k=>{ const el=document.getElementById(k)||document.querySelector(`[name="${k}"]`); if(el&&!el.__live){ el.addEventListener('input',send); el.addEventListener('change',send); el.__live=true; }});
+                send();
+            };
+            document.addEventListener('DOMContentLoaded',bind);
+            const mo=new MutationObserver(bind); mo.observe(document.body,{childList:true,subtree:true});
+        })();
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {
@@ -2019,6 +2079,54 @@
                 }
             }
             
+            // Theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const savedTheme = localStorage.getItem('sg_theme') || 'dark';
+            document.documentElement.dataset.theme = savedTheme;
+            themeToggle.addEventListener('click', ()=>{
+                const next = (document.documentElement.dataset.theme === 'dark') ? 'light' : 'dark';
+                document.documentElement.dataset.theme = next; localStorage.setItem('sg_theme', next);
+            });
+
+            // AI smart mode controls were removed; keep a default flag without DOM bindings
+            let aiOn = true;
+
+            // Intercept recommendations submit to respect AI mode
+            const recForm = document.getElementById('recommendations-form');
+            if (recForm) {
+                recForm.addEventListener('submit', (e)=>{
+                    if (!aiOn) {
+                        showToast('AI disabled. Showing local tips.', 'info');
+                    }
+                });
+            }
+
+            // Command palette
+            const cmd = document.getElementById('cmd-palette');
+            const cmdInput = document.getElementById('cmd-input');
+            const cmdToggle = document.getElementById('cmd-toggle');
+            const cmdResults = document.getElementById('cmd-results');
+            const OPTIONS = [
+                {label:'Go: Stress Check', action:()=>location.hash='#stress-check'},
+                {label:'Go: Analytics', action:()=>location.hash='#analytics'},
+                {label:'Go: Recommendations', action:()=>location.hash='#recommendations'},
+                {label:'Go: AI Coach', action:()=>location.hash='#ai-coach'},
+                {label:'Go: Community', action:()=>location.hash='#community'},
+                {label:'Go: Emergency', action:()=>location.hash='#emergency'},
+                {label:'Toggle AI', action:()=>aiToggle.click()},
+                {label:'Toggle Theme', action:()=>themeToggle.click()}
+            ];
+            function openCmd(){ cmd.style.display='block'; cmdInput.value=''; render(''); cmdInput.focus(); }
+            function closeCmd(){ cmd.style.display='none'; }
+            function render(q){
+                const items = OPTIONS.filter(o=>o.label.toLowerCase().includes(q.toLowerCase()));
+                cmdResults.innerHTML = items.map((o,i)=>`<div data-i="${i}" style="padding:10px 14px; cursor:pointer; border-bottom:1px solid #1e293b;">${o.label}</div>`).join('');
+                Array.from(cmdResults.children).forEach(el=> el.onclick = ()=>{ OPTIONS[el.dataset.i].action(); closeCmd(); });
+            }
+            cmdInput.oninput = (e)=>render(e.target.value);
+            cmdToggle.addEventListener('click', openCmd);
+            window.addEventListener('keydown', (e)=>{ if ((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); openCmd(); } if (e.key==='Escape') closeCmd(); });
+
             // Handle URL hash changes
             window.addEventListener('hashchange', function() {
                 const hash = window.location.hash.substring(1);
