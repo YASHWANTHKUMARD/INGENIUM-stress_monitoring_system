@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 StressGuard Pro - AI-Powered Stress Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #4ecdc4;
+            --warning: #ffe66d;
+            --danger: #ff6b6b;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass: rgba(255, 255, 255, 0.1);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #4facfe;
+            border-bottom: 3px solid #4facfe;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+            border-left: 5px solid #4facfe;
+        }
+
+        .stress-level {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .stress-indicator {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .stress-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .stress-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .stress-high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .recommendations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .recommendation-category {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .recommendation-category h3 {
+            color: #4facfe;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .recommendation-category ul {
+            list-style: none;
+        }
+
+        .recommendation-category li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        .recommendation-category li:last-child {
+            border-bottom: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .recommendations {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Stress Monitoring System</h1>
+            <p>AI-powered stress detection with personalized recommendations</p>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('stress-check')">Stress Check</button>
+                <button class="tab" onclick="showTab('recommendations')">Recommendations</button>
+                <button class="tab" onclick="showTab('emergency')">Emergency Help</button>
+                <button class="tab" onclick="showTab('weekly-plan')">Weekly Plan</button>
+            </div>
+
+            <!-- Stress Check Tab -->
+            <div id="stress-check" class="tab-content active">
+                <h2>Stress Level Assessment</h2>
+                <p>Please provide your current data to assess your stress level:</p>
+                
+                <form id="stress-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="heart_rate">Heart Rate (BPM)</label>
+                            <input type="number" id="heart_rate" name="heart_rate" min="40" max="200" value="75" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="sleep_hours">Sleep Hours (last night)</label>
+                            <input type="number" id="sleep_hours" name="sleep_hours" min="0" max="24" step="0.5" value="7.5" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="activity_level">Activity Level (0-1)</label>
+                            <input type="number" id="activity_level" name="activity_level" min="0" max="1" step="0.1" value="0.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mood_score">Mood Score (1-10)</label>
+                            <input type="number" id="mood_score" name="mood_score" min="1" max="10" value="6" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="work_stress">Work Stress (1-10)</label>
+                            <input type="number" id="work_stress" name="work_stress" min="1" max="10" value="5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="social_interaction">Social Interaction (1-10)</label>
+                            <input type="number" id="social_interaction" name="social_interaction" min="1" max="10" value="6" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="caffeine_intake">Caffeine Intake (cups/day)</label>
+                            <input type="number" id="caffeine_intake" name="caffeine_intake" min="0" max="10" step="0.5" value="2" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exercise_frequency">Exercise Frequency (days/week)</label>
+                            <input type="number" id="exercise_frequency" name="exercise_frequency" min="0" max="7" value="3" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" name="age" min="18" max="100" value="30" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender" required>
+                                <option value="0">Female</option>
+                                <option value="1">Male</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" id="check-stress-btn">Check Stress Level</button>
+                </form>
+
+                <div id="stress-result" class="result-card" style="display: none;">
+                    <div class="stress-level">
+                        <h3>Your Stress Level:</h3>
+                        <div id="stress-indicator" class="stress-indicator"></div>
+                        <p id="stress-confidence"></p>
+                    </div>
+                    <div id="stress-details"></div>
+                </div>
+            </div>
+
+            <!-- Recommendations Tab -->
+            <div id="recommendations" class="tab-content">
+                <h2>Personalized Recommendations</h2>
+                <p>Get personalized recommendations based on your stress level and preferences:</p>
+                
+                <form id="recommendations-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pref-interests">Interests (comma-separated)</label>
+                            <input type="text" id="pref-interests" name="interests" placeholder="reading, music, nature" value="reading, music, nature">
+                        </div>
+                        <div class="form-group">
+                            <label for="pref-time">Available Time</label>
+                            <select id="pref-time" name="available_time">
+                                <option value="30 minutes daily">30 minutes daily</option>
+                                <option value="1-2 hours daily" selected>1-2 hours daily</option>
+                                <option value="3+ hours daily">3+ hours daily</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="pref-activities">Preferred Activities (comma-separated)</label>
+                            <input type="text" id="pref-activities" name="preferred_activities" placeholder="walking, meditation, reading" value="walking, meditation, reading">
+                        </div>
+                        <div class="form-group">
+                            <label for="pref-music">Music Preferences (comma-separated)</label>
+                            <input type="text" id="pref-music" name="music_preferences" placeholder="classical, ambient, jazz" value="classical, ambient, jazz">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" id="get-recommendations-btn">Get Recommendations</button>
+                </form>
+
+                <div id="recommendations-result" class="result-card" style="display: none;">
+                    <h3>Your Personalized Recommendations:</h3>
+                    <div id="recommendations-content" class="recommendations"></div>
+                </div>
+            </div>
+
+            <!-- Emergency Tab -->
+            <div id="emergency" class="tab-content">
+                <h2>Emergency Stress Relief</h2>
+                <p>Immediate actions you can take right now to reduce stress:</p>
+                
+                <button class="btn" onclick="getEmergencyRecommendations()">Get Emergency Help</button>
+                
+                <div id="emergency-result" class="result-card" style="display: none;">
+                    <h3>Emergency Stress Relief Actions:</h3>
+                    <ul id="emergency-list"></ul>
+                </div>
+            </div>
+
+            <!-- Weekly Plan Tab -->
+            <div id="weekly-plan" class="tab-content">
+                <h2>Weekly Stress Management Plan</h2>
+                <p>Get a personalized weekly plan for stress management:</p>
+                
+                <div class="form-group">
+                    <label for="plan-stress-level">Current Stress Level</label>
+                    <select id="plan-stress-level" name="stress_level">
+                        <option value="0">Low</option>
+                        <option value="1" selected>Medium</option>
+                        <option value="2">High</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="getWeeklyPlan()">Generate Weekly Plan</button>
+                
+                <div id="weekly-plan-result" class="result-card" style="display: none;">
+                    <h3>Your Weekly Plan:</h3>
+                    <div id="weekly-plan-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+
+        // Tab switching
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Stress check form submission
+        document.getElementById('stress-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('check-stress-btn');
+            const resultDiv = document.getElementById('stress-result');
+            
+            btn.disabled = true;
+            btn.textContent = 'Analyzing...';
+            
+            try {
+                const formData = new FormData(e.target);
+                const stressData = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    stressData[key] = parseFloat(value);
+                }
+                
+                const response = await fetch(`${API_BASE}/stress/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(stressData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to predict stress level');
+                }
+                
+                const result = await response.json();
+                displayStressResult(result);
+                
+            } catch (error) {
+                showError('Failed to check stress level: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Check Stress Level';
+            }
+        });
+
+        // Recommendations form submission
+        document.getElementById('recommendations-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('get-recommendations-btn');
+            const resultDiv = document.getElementById('recommendations-result');
+            
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            try {
+                // First get stress data from the stress check form
+                const stressForm = document.getElementById('stress-form');
+                const stressFormData = new FormData(stressForm);
+                const stressData = {};
+                
+                for (let [key, value] of stressFormData.entries()) {
+                    stressData[key] = parseFloat(value);
+                }
+                
+                // Get preferences
+                const prefFormData = new FormData(e.target);
+                const preferences = {};
+                
+                for (let [key, value] of prefFormData.entries()) {
+                    if (key === 'interests' || key === 'preferred_activities' || key === 'music_preferences') {
+                        preferences[key] = value.split(',').map(s => s.trim()).filter(s => s);
+                    } else {
+                        preferences[key] = value;
+                    }
+                }
+                
+                const response = await fetch(`${API_BASE}/recommendations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        stress_data: stressData,
+                        user_preferences: preferences
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to get recommendations');
+                }
+                
+                const result = await response.json();
+                displayRecommendations(result);
+                
+            } catch (error) {
+                showError('Failed to get recommendations: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Get Recommendations';
+            }
+        });
+
+        // Display stress result
+        function displayStressResult(result) {
+            const resultDiv = document.getElementById('stress-result');
+            const indicator = document.getElementById('stress-indicator');
+            const confidence = document.getElementById('stress-confidence');
+            const details = document.getElementById('stress-details');
+            
+            indicator.textContent = result.stress_label;
+            indicator.className = `stress-indicator stress-${result.stress_label.toLowerCase()}`;
+            confidence.textContent = `Confidence: ${(result.confidence * 100).toFixed(1)}%`;
+            
+            details.innerHTML = `
+                <h4>Probability Breakdown:</h4>
+                <ul>
+                    <li>Low Stress: ${(result.probabilities.low * 100).toFixed(1)}%</li>
+                    <li>Medium Stress: ${(result.probabilities.medium * 100).toFixed(1)}%</li>
+                    <li>High Stress: ${(result.probabilities.high * 100).toFixed(1)}%</li>
+                </ul>
+            `;
+            
+            resultDiv.style.display = 'block';
+        }
+
+        // Display recommendations
+        function displayRecommendations(result) {
+            const resultDiv = document.getElementById('recommendations-result');
+            const content = document.getElementById('recommendations-content');
+            
+            let html = '';
+            for (const [category, items] of Object.entries(result)) {
+                if (Array.isArray(items) && items.length > 0) {
+                    html += `
+                        <div class="recommendation-category">
+                            <h3>${category.replace('_', ' ').toUpperCase()}</h3>
+                            <ul>
+                                ${items.map(item => `<li>${item}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+            }
+            
+            content.innerHTML = html;
+            resultDiv.style.display = 'block';
+        }
+
+        // Get emergency recommendations
+        async function getEmergencyRecommendations() {
+            try {
+                const response = await fetch(`${API_BASE}/emergency`);
+                if (!response.ok) {
+                    throw new Error('Failed to get emergency recommendations');
+                }
+                
+                const result = await response.json();
+                const list = document.getElementById('emergency-list');
+                list.innerHTML = result.emergency_recommendations.map(item => `<li>${item}</li>`).join('');
+                document.getElementById('emergency-result').style.display = 'block';
+                
+            } catch (error) {
+                showError('Failed to get emergency recommendations: ' + error.message);
+            }
+        }
+
+        // Get weekly plan
+        async function getWeeklyPlan() {
+            try {
+                const stressLevel = document.getElementById('plan-stress-level').value;
+                const response = await fetch(`${API_BASE}/weekly-plan?stress_level=${stressLevel}`);
+                if (!response.ok) {
+                    throw new Error('Failed to get weekly plan');
+                }
+                
+                const result = await response.json();
+                const content = document.getElementById('weekly-plan-content');
+                
+                let html = '';
+                for (const [day, activities] of Object.entries(result.weekly_plan)) {
+                    html += `
+                        <div class="recommendation-category">
+                            <h3>${day.toUpperCase()}</h3>
+                            <ul>
+                                ${activities.map(activity => `<li>${activity}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                }
+                
+                content.innerHTML = html;
+                document.getElementById('weekly-plan-result').style.display = 'block';
+                
+            } catch (error) {
+                showError('Failed to get weekly plan: ' + error.message);
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            
+            // Remove existing error messages
+            document.querySelectorAll('.error').forEach(el => el.remove());
+            
+            // Add new error message
+            document.querySelector('.main-content').appendChild(errorDiv);
+            
+            // Scroll to error
+            errorDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            fetch(`${API_BASE}/sample-data`)
+                .then(response => response.json())
+                .then(data => {
+                    const stressData = data.sample_stress_data;
+                    Object.keys(stressData).forEach(key => {
+                        const input = document.getElementById(key);
+                        if (input) {
+                            input.value = stressData[key];
+                        }
+                    });
+                })
+                .catch(error => console.log('Could not load sample data'));
+        }
+
+        // Load sample data on page load
+        window.addEventListener('load', loadSampleData);
+    </script>
+</body>
+</html>

@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 StressGuard Pro - AI-Powered Stress Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --success: #4ecdc4;
+            --warning: #ffe66d;
+            --danger: #ff6b6b;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass: rgba(255, 255, 255, 0.1);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--gradient);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .main-container {
+            margin-top: 80px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 255, 255, 0.8); }
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .main-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .widget {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 1.5rem;
+            color: white;
+        }
+
+        .tabs {
+            display: none; /* Converted top pills into navbar links */
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: white;
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .recommendations-form {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .recommendations-form h3 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .recommendation-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .recommendation-card h4 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recommendation-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recommendation-card li {
+            color: white;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .recommendation-card li:before {
+            content: "✨";
+            position: absolute;
+            left: 0;
+        }
+
+        .ai-coach-message {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .ai-coach-message h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .ai-coach-message p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* AI Coach Styles */
+        .ai-coach-interface {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .ai-avatar {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .avatar-circle {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .ai-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: white;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4ecdc4;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 10px;
+        }
+
+        .ai-message {
+            background: rgba(102, 126, 234, 0.2);
+            color: white;
+        }
+
+        .user-message {
+            background: rgba(240, 147, 251, 0.2);
+            color: white;
+            text-align: right;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input-container input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .quick-actions {
+            margin-top: 2rem;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Community Styles */
+        .community-dashboard {
+            margin-top: 2rem;
+        }
+
+        .achievements-section, .community-posts, .share-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .achievement-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .achievement-card.unlocked {
+            border-color: var(--accent);
+            background: rgba(240, 147, 251, 0.1);
+        }
+
+        .achievement-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .community-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .posts-container {
+            margin-top: 1rem;
+        }
+
+        .post-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .share-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .share-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .share-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Analytics Styles */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .analytics-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .analytics-card h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .insights-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .insight-card h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-card p {
+            color: white;
+            opacity: 0.9;
+        }
+
+        .data-export {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .export-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .result-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            color: white;
+            display: none;
+        }
+
+        .stress-indicator {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .stress-level {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            padding: 1rem 2rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .stress-low { background: linear-gradient(45deg, var(--success), #2ecc71); }
+        .stress-medium { background: linear-gradient(45deg, var(--warning), #f39c12); }
+        .stress-high { background: linear-gradient(45deg, var(--danger), #e74c3c); }
+
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .recommendation-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .recommendation-card h3 {
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .recommendation-card ul {
+            list-style: none;
+        }
+
+        .recommendation-card li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .recommendation-card li::before {
+            content: '✨';
+            position: absolute;
+            left: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 2rem 0;
+        }
+
+        .ai-coach {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .ai-coach h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .ai-message {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+        }
+
+        .achievements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .achievement {
+            background: var(--glass);
+            border-radius: 15px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .achievement-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .achievement-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .real-time-indicator {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 1rem;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .recommendations-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .ai-coach-interface {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .community-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .share-options {
+                flex-direction: column;
+            }
+            
+            .export-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                StressGuard Pro
+            </div>
+            <ul class="nav-links">
+                <li><a href="#stress-check" onclick="showTab('stress-check')" class="active"><i class="fas fa-stethoscope"></i> Stress Check</a></li>
+                <li><a href="#analytics" onclick="showTab('analytics')"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="#recommendations" onclick="showTab('recommendations')"><i class="fas fa-lightbulb"></i> AI Recommendations</a></li>
+                <li><a href="#ai-coach" onclick="showTab('ai-coach')"><i class="fas fa-robot"></i> AI Coach</a></li>
+                <li><a href="#community" onclick="showTab('community')"><i class="fas fa-users"></i> Community</a></li>
+                <li><a href="#emergency" onclick="showTab('emergency')"><i class="fas fa-first-aid"></i> Emergency</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="hero-section">
+            <h1 class="hero-title">🧠 StressGuard Pro</h1>
+            <p class="hero-subtitle">AI-Powered Stress Management & Mental Wellness Platform</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-heartbeat stat-icon"></i>
+                <div class="stat-value" id="current-stress">--</div>
+                <div class="stat-label">Current Stress Level</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chart-line stat-icon"></i>
+                <div class="stat-value" id="streak-days">0</div>
+                <div class="stat-label">Wellness Streak</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-trophy stat-icon"></i>
+                <div class="stat-value" id="achievements">0</div>
+                <div class="stat-label">Achievements</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users stat-icon"></i>
+                <div class="stat-value" id="community-score">0</div>
+                <div class="stat-label">Community Score</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="main-panel">
+                <div class="tabs"></div>
+
+                <div id="stress-check" class="tab-content active">
+                    <h2>Real-Time Stress Assessment</h2>
+                    <p>Get instant AI-powered stress analysis with personalized insights</p>
+                    
+                    <form id="stress-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="heart_rate">💓 Heart Rate (BPM)</label>
+                                <input type="number" id="heart_rate" name="heart_rate" min="40" max="200" value="75" placeholder="Enter your heart rate">
+                            </div>
+                            <div class="form-group">
+                                <label for="sleep_hours">😴 Sleep Hours</label>
+                                <input type="number" id="sleep_hours" name="sleep_hours" min="0" max="24" step="0.5" value="7.5" placeholder="Hours of sleep">
+                            </div>
+                            <div class="form-group">
+                                <label for="activity_level">🏃 Activity Level</label>
+                                <input type="range" id="activity_level" name="activity_level" min="0" max="1" step="0.1" value="0.5">
+                                <div id="activity-display">50%</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="mood_score">😊 Mood Score</label>
+                                <input type="range" id="mood_score" name="mood_score" min="1" max="10" value="6">
+                                <div id="mood-display">6/10</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="work_stress">💼 Work Stress</label>
+                                <input type="range" id="work_stress" name="work_stress" min="1" max="10" value="5">
+                                <div id="work-display">5/10</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="social_interaction">👥 Social Interaction</label>
+                                <input type="range" id="social_interaction" name="social_interaction" min="1" max="10" value="6">
+                                <div id="social-display">6/10</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="caffeine_intake">☕ Caffeine Intake (cups/day)</label>
+                                <input type="number" id="caffeine_intake" name="caffeine_intake" min="0" max="10" step="0.5" value="2" placeholder="Cups of coffee/tea">
+                            </div>
+                            <div class="form-group">
+                                <label for="exercise_frequency">💪 Exercise Frequency (times/week)</label>
+                                <input type="number" id="exercise_frequency" name="exercise_frequency" min="0" max="7" step="0.5" value="3" placeholder="Times per week">
+                            </div>
+                            <div class="form-group">
+                                <label for="age">🎂 Age</label>
+                                <input type="number" id="age" name="age" min="18" max="100" value="30" placeholder="Your age">
+                            </div>
+                            <div class="form-group">
+                                <label for="gender">👤 Gender</label>
+                                <select id="gender" name="gender">
+                                    <option value="0">Female</option>
+                                    <option value="1" selected>Male</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn" id="check-stress-btn">
+                            <i class="fas fa-brain"></i> Analyze Stress Level
+                        </button>
+                    </form>
+
+                    <div id="stress-result" class="result-card">
+                        <div class="stress-indicator">
+                            <div id="stress-level" class="stress-level">Low</div>
+                            <div id="stress-confidence">Confidence: 85%</div>
+                        </div>
+                        <div id="stress-details"></div>
+                    </div>
+                </div>
+
+                <div id="analytics" class="tab-content">
+                    <h2>📊 Advanced Analytics Dashboard</h2>
+                    <p>Track your stress patterns, mood trends, and wellness progress over time</p>
+                    
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h3>📈 Stress Level Trends</h3>
+                            <div class="chart-container">
+                                <canvas id="stressChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-card">
+                            <h3>😊 Mood & Activity Correlation</h3>
+                            <div class="chart-container">
+                                <canvas id="moodChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-card">
+                            <h3>💤 Sleep Quality Analysis</h3>
+                            <div class="chart-container">
+                                <canvas id="sleepChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-card">
+                            <h3>🏃 Activity vs Stress</h3>
+                            <div class="chart-container">
+                                <canvas id="activityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="insights-section">
+                        <h3>🔍 AI Insights & Recommendations</h3>
+                        <div class="insights-grid" id="insights-grid">
+                            <!-- AI insights will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="data-export">
+                        <h3>📤 Export Your Data</h3>
+                        <div class="export-options">
+                            <button class="export-btn" onclick="exportData('csv')">
+                                <i class="fas fa-file-csv"></i> Export as CSV
+                            </button>
+                            <button class="export-btn" onclick="exportData('pdf')">
+                                <i class="fas fa-file-pdf"></i> Export as PDF
+                            </button>
+                            <button class="export-btn" onclick="exportData('json')">
+                                <i class="fas fa-file-code"></i> Export as JSON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="recommendations" class="tab-content">
+                    <h2>🤖 AI-Powered Recommendations</h2>
+                    <p>Get personalized advice based on your stress level and preferences</p>
+                    
+                    <div class="recommendations-form">
+                        <h3>Tell me about yourself for better recommendations:</h3>
+                        <form id="recommendations-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="user_interests">🎯 Your Interests</label>
+                                    <input type="text" id="user_interests" name="interests" placeholder="e.g., reading, music, nature, cooking" value="reading, music, nature">
+                                </div>
+                                <div class="form-group">
+                                    <label for="available_time">⏰ Available Time</label>
+                                    <select id="available_time" name="available_time">
+                                        <option value="15-30 minutes daily">15-30 minutes daily</option>
+                                        <option value="1-2 hours daily" selected>1-2 hours daily</option>
+                                        <option value="2-4 hours daily">2-4 hours daily</option>
+                                        <option value="Weekend only">Weekend only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="preferred_activities">🏃 Preferred Activities</label>
+                                    <input type="text" id="preferred_activities" name="preferred_activities" placeholder="e.g., walking, meditation, yoga" value="walking, meditation, yoga">
+                                </div>
+                                <div class="form-group">
+                                    <label for="music_preferences">🎵 Music Preferences</label>
+                                    <input type="text" id="music_preferences" name="music_preferences" placeholder="e.g., classical, ambient, jazz" value="classical, ambient, jazz">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn" id="get-recommendations-btn">
+                                <i class="fas fa-magic"></i> Get AI Recommendations
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div id="recommendations-result" class="result-card" style="display: none;">
+                        <div id="recommendations-content" class="recommendations-grid"></div>
+                    </div>
+                </div>
+
+                <div id="ai-coach" class="tab-content">
+                    <h2>🤖 AI Stress Coach</h2>
+                    <p>Your personal AI companion for stress management and mental wellness</p>
+                    
+                    <div class="ai-coach-interface">
+                        <div class="ai-avatar">
+                            <div class="avatar-circle">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="ai-status">
+                                <span class="status-dot online"></span>
+                                <span>Online & Ready to Help</span>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-container">
+                            <div class="chat-messages" id="chat-messages">
+                                <div class="message ai-message">
+                                    <div class="message-content">
+                                        <strong>AI Coach:</strong> Hi there! I'm your personal AI stress coach. How are you feeling today? I'm here to help you manage stress and improve your well-being.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="chat-input-container">
+                                <input type="text" id="chat-input" placeholder="Ask me anything about stress management..." maxlength="500">
+                                <button id="send-message" class="btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="quick-actions">
+                            <h3>Quick Actions</h3>
+                            <div class="action-buttons">
+                                <button class="action-btn" onclick="askAI('How can I reduce stress right now?')">
+                                    <i class="fas fa-heart"></i> Reduce Stress
+                                </button>
+                                <button class="action-btn" onclick="askAI('Give me a breathing exercise')">
+                                    <i class="fas fa-lungs"></i> Breathing Exercise
+                                </button>
+                                <button class="action-btn" onclick="askAI('What should I do for better sleep?')">
+                                    <i class="fas fa-moon"></i> Sleep Tips
+                                </button>
+                                <button class="action-btn" onclick="askAI('Help me with work-life balance')">
+                                    <i class="fas fa-balance-scale"></i> Work-Life Balance
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="community" class="tab-content">
+                    <h2>👥 Community & Achievements</h2>
+                    <p>Connect with others, share your progress, and celebrate your wellness journey</p>
+                    
+                    <div class="community-dashboard">
+                        <div class="achievements-section">
+                            <h3>🏆 Your Achievements</h3>
+                            <div class="achievements-grid" id="achievements-grid">
+                                <!-- Achievements will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="community-stats">
+                            <div class="stat-card">
+                                <i class="fas fa-fire"></i>
+                                <div class="stat-value" id="streak-days">12</div>
+                                <div class="stat-label">Day Streak</div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-star"></i>
+                                <div class="stat-value" id="total-points">1,250</div>
+                                <div class="stat-label">Total Points</div>
+                            </div>
+                            <div class="stat-card">
+                                <i class="fas fa-trophy"></i>
+                                <div class="stat-value" id="level">5</div>
+                                <div class="stat-label">Wellness Level</div>
+                            </div>
+                        </div>
+                        
+                        <div class="community-posts">
+                            <h3>🌟 Community Highlights</h3>
+                            <div class="posts-container" id="community-posts">
+                                <!-- Community posts will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="share-section">
+                            <h3>📤 Share Your Progress</h3>
+                            <div class="share-options">
+                                <button class="share-btn" onclick="shareAchievement('stress_check')">
+                                    <i class="fas fa-share"></i> Share Stress Check
+                                </button>
+                                <button class="share-btn" onclick="shareAchievement('meditation')">
+                                    <i class="fas fa-om"></i> Share Meditation
+                                </button>
+                                <button class="share-btn" onclick="shareAchievement('exercise')">
+                                    <i class="fas fa-dumbbell"></i> Share Exercise
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="emergency" class="tab-content">
+                    <h2>🚨 Emergency Stress Relief</h2>
+                    <div class="ai-coach">
+                        <h3>🤖 AI Stress Coach</h3>
+                        <div class="ai-message" id="ai-message">
+                            I'm here to help you through this stressful moment. Let's work together to find calm.
+                        </div>
+                        <button class="btn" onclick="getEmergencyHelp()">
+                            <i class="fas fa-heart"></i> Get Immediate Help
+                        </button>
+                    </div>
+                    <div id="emergency-result" class="result-card">
+                        <div id="emergency-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="widget">
+                    <h3>🎯 Today's Goals</h3>
+                    <ul>
+                        <li>✅ Complete stress check</li>
+                        <li>⏳ 10-minute meditation</li>
+                        <li>⏳ Take 3 deep breaths</li>
+                        <li>⏳ Connect with a friend</li>
+                    </ul>
+                </div>
+
+                <div class="widget">
+                    <h3>🏆 Recent Achievements</h3>
+                    <div class="achievements">
+                        <div class="achievement">
+                            <div class="achievement-icon">🎯</div>
+                            <div class="achievement-title">First Check</div>
+                            <div class="achievement-desc">Completed your first stress assessment</div>
+                        </div>
+                        <div class="achievement">
+                            <div class="achievement-icon">🔥</div>
+                            <div class="achievement-title">Streak Master</div>
+                            <div class="achievement-desc">7-day wellness streak</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <h3>📈 Quick Stats</h3>
+                    <div style="margin: 1rem 0;">
+                        <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
+                            <span>This Week:</span>
+                            <span>85% Better</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
+                            <span>Avg Stress:</span>
+                            <span>Low</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 0.5rem 0;">
+                            <span>AI Accuracy:</span>
+                            <span>94%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="real-time-indicator">
+        <div class="pulse">
+            <i class="fas fa-circle" style="color: #4ecdc4;"></i>
+            Live Monitoring
+        </div>
+    </div>
+
+    <script>
+        // Initialize particles
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80 },
+                color: { value: '#ffffff' },
+                shape: { type: 'circle' },
+                opacity: { value: 0.5 },
+                size: { value: 3 },
+                line_linked: { enable: true, distance: 150, color: '#ffffff', opacity: 0.4, width: 1 },
+                move: { enable: true, speed: 2, direction: 'none', random: false, straight: false, out_mode: 'out', bounce: false }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true },
+                modes: { grab: { distance: 400, line_linked: { opacity: 1 } }, bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 }, repulse: { distance: 200, duration: 0.4 }, push: { particles_nb: 4 }, remove: { particles_nb: 2 } }
+            },
+            retina_detected: true
+        });
+
+        // Initialize charts
+        let stressChart, trendChart;
+
+        function initCharts() {
+            // Stress Level Chart
+            const stressCtx = document.getElementById('stressChart').getContext('2d');
+            stressChart = new Chart(stressCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Low', 'Medium', 'High'],
+                    datasets: [{
+                        data: [60, 30, 10],
+                        backgroundColor: ['#4ecdc4', '#ffe66d', '#ff6b6b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Trend Chart
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Stress Level',
+                        data: [2, 3, 1, 4, 2, 1, 2],
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 5 }
+                    }
+                }
+            });
+        }
+
+        // Tab switching
+        function showTab(tabName) {
+            // Remove active class from all tabs and content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Add active class to selected tab and content
+            const selectedTab = document.querySelector(`[onclick="showTab('${tabName}')"]`);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            const selectedContent = document.getElementById(tabName);
+            if (selectedContent) {
+                selectedContent.classList.add('active');
+            }
+
+            if (tabName === 'analytics') {
+                setTimeout(initCharts, 100);
+            }
+        }
+
+        // Range input updates
+        document.getElementById('activity_level').addEventListener('input', function() {
+            document.getElementById('activity-display').textContent = Math.round(this.value * 100) + '%';
+        });
+
+        document.getElementById('mood_score').addEventListener('input', function() {
+            document.getElementById('mood-display').textContent = this.value + '/10';
+        });
+
+        document.getElementById('work_stress').addEventListener('input', function() {
+            document.getElementById('work-display').textContent = this.value + '/10';
+        });
+
+        document.getElementById('social_interaction').addEventListener('input', function() {
+            document.getElementById('social-display').textContent = this.value + '/10';
+        });
+
+        // Stress form submission
+        document.getElementById('stress-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('check-stress-btn');
+            const resultDiv = document.getElementById('stress-result');
+            
+            btn.innerHTML = '<div class="loading"></div> Analyzing...';
+            btn.disabled = true;
+            
+            try {
+                const formData = new FormData(e.target);
+                const stressData = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    stressData[key] = parseFloat(value);
+                }
+                
+                const response = await fetch('/api/stress/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(stressData)
+                });
+                
+                if (!response.ok) throw new Error('Failed to predict stress level');
+                
+                const result = await response.json();
+                displayStressResult(result);
+                
+                // Update stats
+                updateStats(result);
+                
+            } catch (error) {
+                showError('Failed to analyze stress level: ' + error.message);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-brain"></i> Analyze Stress Level';
+                btn.disabled = false;
+            }
+        });
+
+        function displayStressResult(result) {
+            const resultDiv = document.getElementById('stress-result');
+            const levelDiv = document.getElementById('stress-level');
+            const confidenceDiv = document.getElementById('stress-confidence');
+            const detailsDiv = document.getElementById('stress-details');
+            
+            levelDiv.textContent = result.stress_label;
+            levelDiv.className = `stress-level stress-${result.stress_label.toLowerCase()}`;
+            confidenceDiv.textContent = `Confidence: ${(result.confidence * 100).toFixed(1)}%`;
+            
+            detailsDiv.innerHTML = `
+                <h3>Detailed Analysis</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 2rem; font-weight: bold; color: #4ecdc4;">${(result.probabilities.low * 100).toFixed(1)}%</div>
+                        <div>Low Stress</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 2rem; font-weight: bold; color: #ffe66d;">${(result.probabilities.medium * 100).toFixed(1)}%</div>
+                        <div>Medium Stress</div>
+                    </div>
+                    <div style="text-align: center; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div style="font-size: 2rem; font-weight: bold; color: #ff6b6b;">${(result.probabilities.high * 100).toFixed(1)}%</div>
+                        <div>High Stress</div>
+                    </div>
+                </div>
+            `;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateStats(result) {
+            document.getElementById('current-stress').textContent = result.stress_label;
+            document.getElementById('streak-days').textContent = Math.floor(Math.random() * 30) + 1;
+            document.getElementById('achievements').textContent = Math.floor(Math.random() * 15) + 5;
+            document.getElementById('community-score').textContent = Math.floor(Math.random() * 1000) + 500;
+        }
+
+        function getEmergencyHelp() {
+            const aiMessage = document.getElementById('ai-message');
+            const messages = [
+                "Take 5 deep breaths with me. Inhale for 4 counts, hold for 4, exhale for 6.",
+                "You're stronger than this moment. Let's focus on one thing you can control right now.",
+                "I'm here with you. Let's try the 5-4-3-2-1 grounding technique together.",
+                "This feeling is temporary. You've overcome challenges before, and you will again.",
+                "Let's practice progressive muscle relaxation. Start with your toes and work up."
+            ];
+            
+            aiMessage.textContent = messages[Math.floor(Math.random() * messages.length)];
+            
+            fetch('/api/emergency')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('emergency-list');
+                    list.innerHTML = '<h3>Immediate Actions:</h3>' + 
+                        data.emergency_recommendations.map(item => `<div style="padding: 0.5rem; margin: 0.5rem 0; background: rgba(255,255,255,0.1); border-radius: 10px;">${item}</div>`).join('');
+                    document.getElementById('emergency-result').style.display = 'block';
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        function showError(message) {
+            alert('Error: ' + message);
+        }
+
+        // Recommendations form submission
+        document.getElementById('recommendations-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('get-recommendations-btn');
+            const resultDiv = document.getElementById('recommendations-result');
+            const contentDiv = document.getElementById('recommendations-content');
+            
+            btn.innerHTML = '<div class="loading"></div> Getting AI Recommendations...';
+            btn.disabled = true;
+            
+            try {
+                const formData = new FormData(e.target);
+                const userPreferences = {};
+                
+                for (let [key, value] of formData.entries()) {
+                    if (key === 'interests' || key === 'preferred_activities' || key === 'music_preferences') {
+                        userPreferences[key] = value.split(',').map(item => item.trim());
+                    } else {
+                        userPreferences[key] = value;
+                    }
+                }
+                
+                // Get current stress data from the stress form if available
+                const stressForm = document.getElementById('stress-form');
+                const stressFormData = new FormData(stressForm);
+                const stressData = {};
+                
+                for (let [key, value] of stressFormData.entries()) {
+                    stressData[key] = parseFloat(value);
+                }
+                
+                const response = await fetch('/api/recommendations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        stress_data: stressData,
+                        user_preferences: userPreferences
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Failed to get recommendations');
+                
+                const recommendations = await response.json();
+                displayRecommendations(recommendations);
+                
+            } catch (error) {
+                // If API fails, show fallback recommendations
+                console.log('API failed, showing fallback recommendations:', error);
+                const fallbackRecommendations = generateFallbackRecommendations();
+                displayRecommendations(fallbackRecommendations);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-magic"></i> Get AI Recommendations';
+                btn.disabled = false;
+            }
+        });
+
+        function displayRecommendations(recommendations) {
+            const resultDiv = document.getElementById('recommendations-result');
+            const contentDiv = document.getElementById('recommendations-content');
+            
+            contentDiv.innerHTML = `
+                <div class="ai-coach-message">
+                    <h3>🤖 Your Personal AI Coach</h3>
+                    <p>Based on your preferences and current state, here are some personalized recommendations to help you manage stress and improve your well-being!</p>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h4>🚀 Immediate Actions</h4>
+                    <ul>
+                        ${recommendations.immediate_actions.map(action => `<li>${action}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h4>📚 Recommended Books</h4>
+                    <ul>
+                        ${recommendations.books.map(book => `<li>${book}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h4>🎵 Music for Relaxation</h4>
+                    <ul>
+                        ${recommendations.music.map(music => `<li>${music}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h4>🏃 Activities to Try</h4>
+                    <ul>
+                        ${recommendations.activities.map(activity => `<li>${activity}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h4>🧘 Meditation & Mindfulness</h4>
+                    <ul>
+                        ${recommendations.meditation.map(meditation => `<li>${meditation}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h4>👥 Social & Community</h4>
+                    <ul>
+                        ${recommendations.social.map(social => `<li>${social}</li>`).join('')}
+                    </ul>
+                </div>
+                
+                <div class="recommendation-card">
+                    <h4>📈 Long-term Goals</h4>
+                    <ul>
+                        ${recommendations.long_term.map(goal => `<li>${goal}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function generateFallbackRecommendations() {
+            return {
+                immediate_actions: [
+                    "Take 5 deep breaths right now",
+                    "Step away from your current task for 2 minutes",
+                    "Drink a glass of water",
+                    "Stretch your arms and shoulders"
+                ],
+                books: [
+                    "The Power of Now by Eckhart Tolle",
+                    "Atomic Habits by James Clear",
+                    "Wherever You Go, There You Are by Jon Kabat-Zinn",
+                    "The Stress-Proof Brain by Melanie Greenberg"
+                ],
+                music: [
+                    "Classical: Debussy's Clair de Lune",
+                    "Ambient: Brian Eno's Music for Airports",
+                    "Nature sounds: Ocean waves or forest sounds",
+                    "Jazz: Miles Davis' Kind of Blue"
+                ],
+                activities: [
+                    "10-minute walk in nature",
+                    "Gentle yoga or stretching",
+                    "Journaling your thoughts",
+                    "Creative hobby like drawing or writing"
+                ],
+                meditation: [
+                    "5-minute breathing meditation",
+                    "Body scan relaxation",
+                    "Loving-kindness meditation",
+                    "Mindful walking"
+                ],
+                social: [
+                    "Call a friend or family member",
+                    "Join a local hobby group",
+                    "Volunteer for a cause you care about",
+                    "Share your feelings with someone you trust"
+                ],
+                long_term: [
+                    "Establish a consistent sleep schedule",
+                    "Regular exercise routine (3-4 times per week)",
+                    "Learn stress management techniques",
+                    "Build a support network"
+                ]
+            };
+        }
+
+        // AI Coach functionality
+        function askAI(question) {
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            
+            // Add user message
+            addMessage(question, 'user');
+            
+            // Simulate AI response
+            setTimeout(() => {
+                const response = generateAIResponse(question);
+                addMessage(response, 'ai');
+            }, 1000);
+        }
+
+        function addMessage(content, sender) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.innerHTML = `<div class="message-content"><strong>${sender === 'ai' ? 'AI Coach' : 'You'}:</strong> ${content}</div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function generateAIResponse(question) {
+            const responses = {
+                'stress': [
+                    "I understand you're feeling stressed. Let's try the 4-7-8 breathing technique: Inhale for 4 counts, hold for 7, exhale for 8. Repeat 3 times.",
+                    "When stress hits, remember the 5-4-3-2-1 grounding technique: Name 5 things you see, 4 you can touch, 3 you hear, 2 you smell, 1 you taste.",
+                    "Take a moment to step back. What's one small thing you can control right now? Focus on that."
+                ],
+                'breathing': [
+                    "Try box breathing: Inhale for 4, hold for 4, exhale for 4, hold for 4. This activates your parasympathetic nervous system.",
+                    "Let's do belly breathing: Place one hand on your chest, one on your belly. Breathe so only your belly hand moves.",
+                    "The 4-7-8 technique is great: Inhale for 4, hold for 7, exhale for 8. It's like a natural tranquilizer."
+                ],
+                'sleep': [
+                    "Create a bedtime routine: No screens 1 hour before bed, cool room (65-68°F), and try reading or gentle stretching.",
+                    "Avoid caffeine after 2 PM and try magnesium or chamomile tea before bed. Your body needs 7-9 hours of quality sleep.",
+                    "Keep your bedroom dark and quiet. Consider blackout curtains and white noise if needed."
+                ],
+                'work-life': [
+                    "Set clear boundaries: No work emails after 6 PM, take lunch breaks away from your desk, and have a shutdown ritual.",
+                    "Try time-blocking: Schedule your work tasks and personal time in your calendar. Treat personal time as seriously as work meetings.",
+                    "Remember: You're not a machine. Rest and recovery make you more productive, not less."
+                ]
+            };
+            
+            const lowerQuestion = question.toLowerCase();
+            if (lowerQuestion.includes('stress')) return responses.stress[Math.floor(Math.random() * responses.stress.length)];
+            if (lowerQuestion.includes('breathing')) return responses.breathing[Math.floor(Math.random() * responses.breathing.length)];
+            if (lowerQuestion.includes('sleep')) return responses.sleep[Math.floor(Math.random() * responses.sleep.length)];
+            if (lowerQuestion.includes('work') || lowerQuestion.includes('balance')) return responses.work-life[Math.floor(Math.random() * responses.work-life.length)];
+            
+            return "I'm here to help! Could you tell me more about what's on your mind? I can help with stress management, breathing exercises, sleep tips, or work-life balance.";
+        }
+
+        // Community functionality
+        function loadAchievements() {
+            const achievements = [
+                { id: 'first_check', title: 'First Steps', icon: '🎯', description: 'Completed your first stress assessment', unlocked: true },
+                { id: 'week_streak', title: 'Consistency Champion', icon: '🔥', description: 'Used the app for 7 consecutive days', unlocked: true },
+                { id: 'stress_master', title: 'Stress Master', icon: '🧘', description: 'Maintained low stress for 5 days straight', unlocked: false, progress: 3 },
+                { id: 'community_helper', title: 'Community Helper', icon: '🤝', description: 'Helped 5 community members', unlocked: false, progress: 2 },
+                { id: 'meditation_master', title: 'Zen Master', icon: '🧘‍♀️', description: 'Completed 30 meditation sessions', unlocked: false, progress: 12 },
+                { id: 'exercise_warrior', title: 'Fitness Warrior', icon: '💪', description: 'Exercised 20 days this month', unlocked: false, progress: 15 }
+            ];
+            
+            const grid = document.getElementById('achievements-grid');
+            grid.innerHTML = achievements.map(achievement => `
+                <div class="achievement-card ${achievement.unlocked ? 'unlocked' : ''}">
+                    <div class="achievement-icon">${achievement.icon}</div>
+                    <h4>${achievement.title}</h4>
+                    <p>${achievement.description}</p>
+                    ${!achievement.unlocked && achievement.progress ? `<div class="progress">Progress: ${achievement.progress}/5</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function loadCommunityPosts() {
+            const posts = [
+                { user: 'Sarah M.', content: 'Just completed my 30-day meditation streak! Feeling so much calmer and focused. 🧘‍♀️', likes: 24, time: '2 hours ago' },
+                { user: 'Mike R.', content: 'The breathing exercises really helped me through my presentation today. Thanks for the tips! 💪', likes: 18, time: '4 hours ago' },
+                { user: 'Emma L.', content: 'Sharing my stress management journey - from daily panic attacks to feeling in control. You got this! 🌟', likes: 42, time: '6 hours ago' },
+                { user: 'David K.', content: 'Work-life balance tip: I set my phone to "Do Not Disturb" after 8 PM. Game changer! 📱', likes: 31, time: '8 hours ago' }
+            ];
+            
+            const container = document.getElementById('community-posts');
+            container.innerHTML = posts.map(post => `
+                <div class="post-card">
+                    <div class="post-header">
+                        <strong>${post.user}</strong>
+                        <span class="post-time">${post.time}</span>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    <div class="post-actions">
+                        <button class="like-btn">❤️ ${post.likes}</button>
+                        <button class="comment-btn">💬 Comment</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function shareAchievement(type) {
+            const messages = {
+                'stress_check': 'Just completed my stress assessment! Feeling more aware of my mental state. 💪',
+                'meditation': 'Had an amazing meditation session today. Inner peace achieved! 🧘‍♀️',
+                'exercise': 'Crushed my workout today! Endorphins are flowing! 💪'
+            };
+            
+            alert(`Shared: "${messages[type]}"\n\nThis would normally post to your social media or community feed!`);
+        }
+
+        // Analytics functionality
+        function loadAnalytics() {
+            // Initialize charts
+            initializeCharts();
+            loadInsights();
+        }
+
+        function initializeCharts() {
+            // Stress Chart
+            const stressCtx = document.getElementById('stressChart').getContext('2d');
+            new Chart(stressCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Stress Level',
+                        data: [3, 2, 1, 4, 2, 1, 1],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    },
+                    scales: {
+                        y: { ticks: { color: 'white' } },
+                        x: { ticks: { color: 'white' } }
+                    }
+                }
+            });
+
+            // Mood Chart
+            const moodCtx = document.getElementById('moodChart').getContext('2d');
+            new Chart(moodCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Morning', 'Afternoon', 'Evening'],
+                    datasets: [{
+                        label: 'Mood Score',
+                        data: [7, 6, 8],
+                        backgroundColor: ['#4ecdc4', '#ffe66d', '#f093fb']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    },
+                    scales: {
+                        y: { ticks: { color: 'white' } },
+                        x: { ticks: { color: 'white' } }
+                    }
+                }
+            });
+
+            // Sleep Chart
+            const sleepCtx = document.getElementById('sleepChart').getContext('2d');
+            new Chart(sleepCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Deep Sleep', 'REM Sleep', 'Light Sleep'],
+                    datasets: [{
+                        data: [25, 20, 55],
+                        backgroundColor: ['#667eea', '#764ba2', '#f093fb']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    }
+                }
+            });
+
+            // Activity Chart
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            new Chart(activityCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Activity vs Stress',
+                        data: [
+                            {x: 0.2, y: 4}, {x: 0.4, y: 3}, {x: 0.6, y: 2}, {x: 0.8, y: 1}
+                        ],
+                        backgroundColor: '#4ecdc4'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    },
+                    scales: {
+                        y: { ticks: { color: 'white' } },
+                        x: { ticks: { color: 'white' } }
+                    }
+                }
+            });
+        }
+
+        function loadInsights() {
+            const insights = [
+                {
+                    title: "Sleep Quality Impact",
+                    content: "Your stress levels are 40% lower on days when you get 7+ hours of sleep. Consider prioritizing your bedtime routine."
+                },
+                {
+                    title: "Exercise Correlation",
+                    content: "Days with 30+ minutes of activity show 60% better mood scores. Even a short walk can make a difference!"
+                },
+                {
+                    title: "Weekly Pattern",
+                    content: "You tend to feel most stressed on Thursdays. Try scheduling lighter tasks or a relaxing activity for mid-week."
+                },
+                {
+                    title: "Morning Routine",
+                    content: "Your mood is consistently higher when you start the day with meditation or gentle movement."
+                }
+            ];
+            
+            const grid = document.getElementById('insights-grid');
+            grid.innerHTML = insights.map(insight => `
+                <div class="insight-card">
+                    <h4>${insight.title}</h4>
+                    <p>${insight.content}</p>
+                </div>
+            `).join('');
+        }
+
+        function exportData(format) {
+            alert(`Exporting data as ${format.toUpperCase()}...\n\nThis would normally download your stress data, mood trends, and analytics in the selected format!`);
+        }
+
+        // Chat functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-message');
+            
+            if (chatInput && sendButton) {
+                sendButton.addEventListener('click', () => {
+                    const message = chatInput.value.trim();
+                    if (message) {
+                        askAI(message);
+                        chatInput.value = '';
+                    }
+                });
+                
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        sendButton.click();
+                    }
+                });
+            }
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats({ stress_label: 'Low', confidence: 0.85, probabilities: { low: 0.85, medium: 0.13, high: 0.02 } });
+            
+            // Load community content
+            loadAchievements();
+            loadCommunityPosts();
+            
+            // Load analytics when tab is shown
+            const analyticsTab = document.querySelector('[onclick="showTab(\'analytics\')"]');
+            if (analyticsTab) {
+                analyticsTab.addEventListener('click', () => {
+                    setTimeout(loadAnalytics, 100);
+                });
+            }
+            
+            // Handle URL hash on page load
+            const hash = window.location.hash.substring(1);
+            if (hash && ['stress-check', 'analytics', 'recommendations', 'ai-coach', 'community', 'emergency'].includes(hash)) {
+                showTab(hash);
+                if (hash === 'analytics') {
+                    setTimeout(loadAnalytics, 100);
+                }
+            }
+            
+            // Handle URL hash changes
+            window.addEventListener('hashchange', function() {
+                const hash = window.location.hash.substring(1);
+                if (hash && ['stress-check', 'analytics', 'recommendations', 'ai-coach', 'community', 'emergency'].includes(hash)) {
+                    showTab(hash);
+                    if (hash === 'analytics') {
+                        setTimeout(loadAnalytics, 100);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+# Minimal requirements for Python 3.13 compatibility
+setuptools>=65.0.0
+wheel>=0.40.0
+
+# Core ML and Data Science
+numpy
+pandas
+scikit-learn
+tensorflow
+keras
+
+# Data Visualization
+matplotlib
+seaborn
+plotly
+
+# Web Framework
+fastapi
+uvicorn[standard]
+pydantic
+
+# Database
+sqlalchemy
+
+# GenAI Integration
+openai
+langchain
+langchain-openai
+
+# Utilities
+python-dotenv
+requests
+python-multipart
+jinja2
+
+# Development
+jupyter
+notebook
