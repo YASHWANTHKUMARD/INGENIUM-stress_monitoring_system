@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Checkup - AI Risk Prediction</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #020617;
+            --primary: #38bdf8;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --border: #1f2937;
+            --low: #22c55e;
+            --medium: #f59e0b;
+            --high: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+            background: radial-gradient(circle at top, #111827, #020617 70%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(16px);
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+        }
+
+        .nav-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0.8rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.98rem;
+        }
+
+        .logo span {
+            color: #e5e7eb;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.9rem;
+            font-size: 0.86rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--muted);
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.16s ease;
+        }
+
+        .nav-links a span.icon {
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+            background: rgba(31, 41, 55, 0.9);
+        }
+
+        .nav-links a.active {
+            color: #f9fafb;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.7);
+        }
+
+        main {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 1.8rem 1.25rem 2.4rem;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.3fr);
+            gap: 1.6rem;
+        }
+
+        .card {
+            background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), #020617 55%);
+            border-radius: 1.25rem;
+            border: 1px solid rgba(31, 41, 55, 0.95);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+            padding: 1.3rem 1.4rem 1.3rem;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .subtitle {
+            font-size: 0.92rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        .grid {
+            display: grid;
+            gap: 0.9rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        label {
+            font-size: 0.8rem;
+            color: var(--muted);
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        input, select {
+            font-size: 0.82rem;
+            padding: 0.6rem 0.65rem;
+            border-radius: 0.6rem;
+            border: 1px solid #1f2937;
+            background: #020617;
+            color: var(--text);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: rgba(56, 189, 248, 0.8);
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+        }
+
+        button {
+            margin-top: 1rem;
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border-radius: 0.8rem;
+            border: none;
+            background: linear-gradient(135deg, #38bdf8, #6366f1);
+            color: white;
+            font-weight: 600;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            box-shadow: 0 14px 35px rgba(37, 99, 235, 0.6);
+            transition: all 0.16s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 18px 40px rgba(37, 99, 235, 0.8);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            box-shadow: none;
+        }
+
+        .status {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 0.5rem;
+            min-height: 1rem;
+        }
+
+        .result-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .badge span.dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: currentColor;
+        }
+
+        .badge.low { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.7); }
+        .badge.medium { background: rgba(245, 158, 11, 0.1); color: #facc15; border: 1px solid rgba(245, 158, 11, 0.7); }
+        .badge.high { background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.7); }
+
+        .risk-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .explanation {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 0.6rem;
+        }
+
+        .recommendations-title {
+            font-size: 0.86rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-top: 0.4rem;
+            margin-bottom: 0.4rem;
+        }
+
+        ul {
+            margin-left: 1.1rem;
+            font-size: 0.88rem;
+            color: #e5e7eb;
+        }
+
+        li + li {
+            margin-top: 0.25rem;
+        }
+
+        .hint {
+            font-size: 0.76rem;
+            color: var(--muted);
+            margin-top: 0.9rem;
+        }
+
+        @media (max-width: 840px) {
+            .layout {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            main {
+                padding-inline: 1rem;
+            }
+
+            .nav-inner {
+                padding-inline: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="logo">
+                <i class="fa-solid fa-stethoscope"></i>
+                <span>Health Checkup</span>
+            </div>
+            <div class="nav-links">
+                <a href="/">
+                    <span class="icon"><i class="fa-solid fa-house"></i></span>
+                    <span>Home</span>
+                </a>
+                <a href="/health" class="active">
+                    <span class="icon"><i class="fa-solid fa-heart-pulse"></i></span>
+                    <span>Health Checkup</span>
+                </a>
+                <a href="/stress">
+                    <span class="icon"><i class="fa-solid fa-brain"></i></span>
+                    <span>Stress Dashboard</span>
+                </a>
+                <a href="/precautions">
+                    <span class="icon"><i class="fa-solid fa-shield-halved"></i></span>
+                    <span>Precautions</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="layout">
+            <section class="card">
+                <h1>Early Disease Risk Prediction</h1>
+                <p class="subtitle">
+                    Enter a few key metrics. The model will estimate your overall health risk
+                    using the data and logic from your AI Hackathon project.
+                </p>
+                <form id="health-form">
+                    <div class="grid">
+                        <label>Age
+                            <input type="number" name="age" min="1" max="120" step="1" required />
+                        </label>
+                        <label>Gender
+                            <select name="gender" required>
+                                <option>Male</option>
+                                <option>Female</option>
+                            </select>
+                        </label>
+                        <label>Systolic BP
+                            <input type="number" name="systolic_bp" min="80" max="200" step="1" required />
+                        </label>
+                        <label>Diastolic BP
+                            <input type="number" name="diastolic_bp" min="50" max="140" step="1" required />
+                        </label>
+                        <label>Blood Sugar (mg/dL)
+                            <input type="number" name="blood_sugar" min="60" max="300" step="1" required />
+                        </label>
+                        <label>BMI
+                            <input type="number" name="bmi" min="10" max="60" step="0.1" required />
+                        </label>
+                        <label>Cholesterol (mg/dL)
+                            <input type="number" name="cholesterol" min="100" max="400" step="1" required />
+                        </label>
+                        <label>Smoking
+                            <select name="smoking" required>
+                                <option>No</option>
+                                <option>Yes</option>
+                            </select>
+                        </label>
+                        <label>Physical Activity
+                            <select name="activity_level" required>
+                                <option>Low</option>
+                                <option>Moderate</option>
+                                <option>High</option>
+                            </select>
+                        </label>
+                    </div>
+                    <button type="submit">
+                        <span class="icon"><i class="fa-solid fa-magnifying-glass-chart"></i></span>
+                        <span>Predict Risk</span>
+                    </button>
+                    <div id="status" class="status"></div>
+                </form>
+                <p class="hint">
+                    This is a demo tool and not a medical device. Always consult healthcare
+                    professionals for diagnosis and treatment.
+                </p>
+            </section>
+
+            <section class="card" id="result-card" style="display:none;">
+                <div class="result-heading">
+                    <div class="risk-label" id="risk-label">Risk: —</div>
+                    <div class="badge" id="risk-badge">
+                        <span class="dot"></span>
+                        <span>Waiting</span>
+                    </div>
+                </div>
+                <p class="explanation" id="explanation"></p>
+                <div>
+                    <div class="recommendations-title">Recommendations</div>
+                    <ul id="recommendations"></ul>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const form = document.getElementById("health-form");
+        const statusEl = document.getElementById("status");
+        const resultCard = document.getElementById("result-card");
+        const riskLabel = document.getElementById("risk-label");
+        const riskBadge = document.getElementById("risk-badge");
+        const explanationEl = document.getElementById("explanation");
+        const recommendationsEl = document.getElementById("recommendations");
+
+        function setBadge(risk) {
+            riskBadge.className = "badge";
+            let label = "Unknown";
+            if (!risk) {
+                riskBadge.innerHTML = '<span class="dot"></span><span>Unknown</span>';
+                return;
+            }
+            const normalized = String(risk).toLowerCase();
+            if (normalized === "low") {
+                riskBadge.classList.add("low");
+                label = "Low risk";
+            } else if (normalized === "medium") {
+                riskBadge.classList.add("medium");
+                label = "Medium risk";
+            } else if (normalized === "high") {
+                riskBadge.classList.add("high");
+                label = "High risk";
+            }
+            riskBadge.innerHTML = '<span class="dot"></span><span>' + label + "</span>";
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            statusEl.textContent = "Predicting risk…";
+            resultCard.style.display = "none";
+
+            const formData = new FormData(form);
+            const payload = {
+                age: Number(formData.get("age")),
+                gender: formData.get("gender"),
+                systolic_bp: Number(formData.get("systolic_bp")),
+                diastolic_bp: Number(formData.get("diastolic_bp")),
+                blood_sugar: Number(formData.get("blood_sugar")),
+                bmi: Number(formData.get("bmi")),
+                cholesterol: Number(formData.get("cholesterol")),
+                smoking: formData.get("smoking"),
+                activity_level: formData.get("activity_level"),
+            };
+
+            const button = form.querySelector("button[type=submit]");
+            button.disabled = true;
+
+            try {
+                const res = await fetch("/api/health/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!res.ok) {
+                    throw new Error("Server error: " + res.status);
+                }
+                const data = await res.json();
+                statusEl.textContent = "";
+
+                riskLabel.textContent = "Predicted Risk: " + (data.risk || "Unknown");
+                setBadge(data.risk);
+                explanationEl.textContent = data.explanation || "";
+
+                recommendationsEl.innerHTML = "";
+                (data.recommendations || []).forEach((item) => {
+                    const li = document.createElement("li");
+                    li.textContent = item;
+                    recommendationsEl.appendChild(li);
+                });
+
+                resultCard.style.display = "block";
+            } catch (err) {
+                console.error(err);
+                statusEl.textContent = "Something went wrong. Please check your values and try again.";
+            } finally {
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
+
+

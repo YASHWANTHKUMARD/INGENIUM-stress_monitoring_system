@@ -1,0 +1,119 @@
+:root {
+    --bg: #f6f8fb;
+    --card: #ffffff;
+    --primary: #1d8cf8;
+    --text: #1f2933;
+    --muted: #55606e;
+    --border: #e4e7eb;
+    --low: #22c55e;
+    --medium: #f59e0b;
+    --high: #ef4444;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.container {
+    max-width: 900px;
+    margin: 32px auto;
+    padding: 24px;
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+header h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+}
+
+header p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.form-section {
+    margin-top: 20px;
+}
+
+.grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+input, select {
+    margin-top: 6px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+button {
+    margin-top: 18px;
+    width: 100%;
+    padding: 12px;
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+    box-shadow: 0 10px 24px rgba(29, 140, 248, 0.25);
+    transform: translateY(-1px);
+}
+
+.result {
+    margin-top: 28px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #fdfefe;
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: #fff;
+    font-weight: 700;
+}
+
+.badge.low { background: var(--low); }
+.badge.medium { background: var(--medium); }
+.badge.high { background: var(--high); }
+
+.explanation {
+    color: var(--muted);
+    margin: 8px 0 12px;
+}
+
+ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+footer {
+    margin-top: 22px;
+    text-align: center;
+    color: var(--muted);
+}
+

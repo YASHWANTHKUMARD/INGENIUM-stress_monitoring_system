@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wellness Hub - Health & Stress Monitoring</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --bg: #0f172a;
+            --card: #0b1220;
+            --card-soft: #111827;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --border: rgba(148, 163, 184, 0.3);
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+            background: radial-gradient(circle at top, #1e293b, #020617 60%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(16px);
+            background: linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.85));
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1.5rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, #f97316, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .logo span {
+            background: linear-gradient(to right, #e5e7eb, #a5b4fc);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.3rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-links a span.icon {
+            font-size: 0.9rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+            background: rgba(148, 163, 184, 0.16);
+        }
+
+        .nav-links a.primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: 1px solid rgba(191, 219, 254, 0.4);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.35);
+        }
+
+        .nav-links a.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 32px rgba(79, 70, 229, 0.5);
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2.2rem 1.5rem 3rem;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 2.2fr) minmax(0, 2fr);
+            gap: 2rem;
+            align-items: center;
+            margin-bottom: 2.4rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.1rem, 3vw, 2.7rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 0.8rem;
+        }
+
+        .hero-title span.accent {
+            background: linear-gradient(to right, #a5b4fc, #f9a8d4);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero-subtitle {
+            color: var(--muted);
+            font-size: 0.98rem;
+            max-width: 32rem;
+        }
+
+        .hero-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem;
+            margin-top: 1rem;
+        }
+
+        .hero-pill {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            color: var(--muted);
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .hero-badges {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.4rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .hero-badges span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .hero-badges .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+        }
+
+        .hero-card {
+            background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.35), rgba(15, 23, 42, 0.95));
+            border-radius: 1.5rem;
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.75);
+            padding: 1.4rem 1.4rem 1.3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .hero-card-title {
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        .hero-card-chip {
+            font-size: 0.75rem;
+            padding: 0.15rem 0.6rem;
+            border-radius: 999px;
+            background: rgba(22, 163, 74, 0.18);
+            color: #bbf7d0;
+            border: 1px solid rgba(22, 163, 74, 0.6);
+        }
+
+        .hero-card-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.7rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 0.9rem;
+            padding: 0.55rem 0.65rem;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-bottom: 0.15rem;
+        }
+
+        .metric-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .metric-tag {
+            font-size: 0.7rem;
+            color: #a5b4fc;
+        }
+
+        .hero-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .hero-card-footer strong {
+            color: #e5e7eb;
+        }
+
+        .hero-card-ring {
+            position: absolute;
+            right: -40px;
+            bottom: -40px;
+            width: 140px;
+            height: 140px;
+            border-radius: 999px;
+            background: conic-gradient(from 180deg, #4ade80, #a3e635, #facc15, #fb923c, #f97316);
+            opacity: 0.35;
+            filter: blur(1px);
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.3rem;
+        }
+
+        .card {
+            background: linear-gradient(to bottom right, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.92));
+            border-radius: 1.2rem;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            padding: 1.2rem 1.2rem 1.1rem;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.8);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.7rem;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .card-title span.icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 20% 20%, rgba(248, 250, 252, 0.85), rgba(79, 70, 229, 0.1));
+            color: #4f46e5;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.75);
+        }
+
+        .card-chip {
+            font-size: 0.72rem;
+            padding: 0.1rem 0.6rem;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            color: var(--muted);
+        }
+
+        .card-body {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 0.9rem;
+        }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .card-tag {
+            font-size: 0.75rem;
+            padding: 0.15rem 0.55rem;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            color: #cbd5f5;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .card-footer a {
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+            border: 1px solid rgba(191, 219, 254, 0.6);
+            background: radial-gradient(circle at top left, rgba(191, 219, 254, 0.2), rgba(15, 23, 42, 0.95));
+            color: #e5e7eb;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: all 0.18s ease;
+        }
+
+        .card-footer a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.7);
+        }
+
+        .card-footer a span.chevron {
+            font-size: 0.75rem;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 800px) {
+            .hero {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .hero-card {
+                order: -1;
+            }
+
+            .nav-inner {
+                padding-inline: 1rem;
+            }
+
+            main {
+                padding-inline: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-inner">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <span>Wellness Hub</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" aria-current="page">
+                    <span class="icon"><i class="fa-solid fa-house"></i></span>
+                    <span>Home</span>
+                </a>
+                <a href="/health">
+                    <span class="icon"><i class="fa-solid fa-stethoscope"></i></span>
+                    <span>Health Checkup</span>
+                </a>
+                <a href="/stress" class="primary">
+                    <span class="icon"><i class="fa-solid fa-brain"></i></span>
+                    <span>Stress Dashboard</span>
+                </a>
+                <a href="/precautions">
+                    <span class="icon"><i class="fa-solid fa-shield-halved"></i></span>
+                    <span>Precautions</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div>
+                <h1 class="hero-title">
+                    Your personal <span class="accent">AI Wellness Companion</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Monitor chronic health risks and manage stress in one place. Combine clinical-style vitals
+                    (BP, sugar, BMI) with day-to-day stress tracking for a complete view of your wellbeing.
+                </p>
+                <div class="hero-pills">
+                    <span class="hero-pill">BP &amp; Sugar Risk Insights</span>
+                    <span class="hero-pill">AI Stress Detection</span>
+                    <span class="hero-pill">Personalized Recommendations</span>
+                    <span class="hero-pill">Beautiful Interactive Dashboards</span>
+                </div>
+                <div class="hero-badges">
+                    <span><span class="dot"></span> All processing happens locally</span>
+                    <span><i class="fa-regular fa-circle-check"></i> Demo-ready for hackathons &amp; projects</span>
+                </div>
+            </div>
+            <div class="hero-card">
+                <div class="hero-card-header">
+                    <div>
+                        <div class="hero-card-title">Today’s Wellness Snapshot</div>
+                    </div>
+                    <span class="hero-card-chip">Live · Simulated</span>
+                </div>
+                <div class="hero-card-metrics">
+                    <div class="metric">
+                        <div class="metric-label">Overall Risk</div>
+                        <div class="metric-value">Low</div>
+                        <div class="metric-tag">Health Checkup</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Stress Level</div>
+                        <div class="metric-value">Moderate</div>
+                        <div class="metric-tag">StressGuard</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Sleep · Activity</div>
+                        <div class="metric-value">Balanced</div>
+                        <div class="metric-tag">Daily habits</div>
+                    </div>
+                </div>
+                <div class="hero-card-footer">
+                    <span>Switch between <strong>Health</strong> and <strong>Stress</strong> modules from the top bar.</span>
+                    <span><i class="fa-solid fa-arrow-right-long"></i></span>
+                </div>
+                <div class="hero-card-ring"></div>
+            </div>
+        </section>
+
+        <section class="module-grid">
+            <article class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="icon"><i class="fa-solid fa-stethoscope"></i></span>
+                        <span>Health Checkup</span>
+                    </div>
+                    <span class="card-chip">Vitals &amp; chronic risk</span>
+                </div>
+                <p class="card-body">
+                    Enter blood pressure, sugar level, BMI, lifestyle and more to instantly estimate the risk
+                    of diabetes, heart disease, and hypertension using a trained ML model.
+                </p>
+                <div class="card-tags">
+                    <span class="card-tag">BP · Sugar · BMI</span>
+                    <span class="card-tag">Random Forest model</span>
+                    <span class="card-tag">Actionable lifestyle tips</span>
+                </div>
+                <div class="card-footer">
+                    <span>Built from your AI Hackathon project.</span>
+                    <a href="/health">
+                        Open Health Checkup
+                        <span class="chevron"><i class="fa-solid fa-arrow-right"></i></span>
+                    </a>
+                </div>
+            </article>
+
+            <article class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="icon"><i class="fa-solid fa-brain"></i></span>
+                        <span>Stress Dashboard</span>
+                    </div>
+                    <span class="card-chip">Real-time insights</span>
+                </div>
+                <p class="card-body">
+                    Track heart rate, sleep, mood, work pressure and more to estimate stress levels, visualize
+                    trends, and receive personalized recommendations for recovery.
+                </p>
+                <div class="card-tags">
+                    <span class="card-tag">Stream analytics</span>
+                    <span class="card-tag">AI recommendations</span>
+                    <span class="card-tag">Interactive charts</span>
+                </div>
+                <div class="card-footer">
+                    <span>Powered by your Stress Monitoring System.</span>
+                    <a href="/stress">
+                        Open Stress Dashboard
+                        <span class="chevron"><i class="fa-solid fa-arrow-right"></i></span>
+                    </a>
+                </div>
+            </article>
+        </section>
+
+        <p class="footer">
+            All modules run on the same FastAPI backend. Use the top navigation to switch between experiences.
+        </p>
+    </main>
+</body>
+</html>
+
+

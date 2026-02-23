@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Early Disease Risk Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Early Disease Risk Prediction</h1>
+            <p>Predict risk for Diabetes, Heart Disease, and Hypertension.</p>
+        </header>
+
+        <section class="form-section">
+            <form method="POST">
+                <div class="grid">
+                    <label>Age
+                        <input type="number" name="age" min="1" max="120" step="1" required>
+                    </label>
+                    <label>Gender
+                        <select name="gender" required>
+                            <option>Male</option>
+                            <option>Female</option>
+                        </select>
+                    </label>
+                    <label>Systolic BP
+                        <input type="number" name="systolic_bp" min="80" max="200" step="1" required>
+                    </label>
+                    <label>Diastolic BP
+                        <input type="number" name="diastolic_bp" min="50" max="140" step="1" required>
+                    </label>
+                    <label>Blood Sugar (mg/dL)
+                        <input type="number" name="blood_sugar" min="60" max="300" step="1" required>
+                    </label>
+                    <label>BMI
+                        <input type="number" name="bmi" min="10" max="60" step="0.1" required>
+                    </label>
+                    <label>Cholesterol (mg/dL)
+                        <input type="number" name="cholesterol" min="100" max="400" step="1" required>
+                    </label>
+                    <label>Smoking
+                        <select name="smoking" required>
+                            <option>No</option>
+                            <option>Yes</option>
+                        </select>
+                    </label>
+                    <label>Physical Activity
+                        <select name="activity_level" required>
+                            <option>Low</option>
+                            <option>Moderate</option>
+                            <option>High</option>
+                        </select>
+                    </label>
+                </div>
+                <button type="submit">Predict Risk</button>
+            </form>
+        </section>
+
+        {% if prediction %}
+        <section class="result">
+            <h2>Predicted Risk: <span class="badge {{ prediction|lower }}">{{ prediction }}</span></h2>
+            <p class="explanation">{{ explanation }}</p>
+            {% if recommendations %}
+            <h3>Recommendations</h3>
+            <ul>
+                {% for item in recommendations %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <footer>
+            <small>Demo project • AI-powered health insights</small>
+        </footer>
+    </div>
+</body>
+</html>
+

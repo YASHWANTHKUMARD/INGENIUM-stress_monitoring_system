@@ -18,6 +18,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models.stress_detector import StressDetector
 from models.recommendation_engine import RecommendationEngine
+from models.health_risk_model import predict_health_risk
+from models.symptom_analyzer import SymptomAnalyzer
 from config import Config
 import requests
 import numpy as np
@@ -40,6 +42,7 @@ app.add_middleware(
 # Global variables for models
 stress_detector = None
 recommendation_engine = None
+symptom_analyzer = SymptomAnalyzer()
 
 # Simple in-memory connection manager for WebSocket broadcasting
 class ConnectionManager:
@@ -126,6 +129,45 @@ class CoachChatResponse(BaseModel):
     reply: str
     sos: bool = False
     disclaimer: str = "This assistant provides general wellness information and is not a substitute for professional medical advice. If you are in crisis, seek immediate help."
+
+class SymptomChatRequest(BaseModel):
+    message: str
+    conversation_history: Optional[List[Dict[str, str]]] = []
+
+class SymptomChatResponse(BaseModel):
+    role: str
+    content: str
+    question: Optional[str] = None
+    needs_followup: bool
+    symptom: Optional[str] = None
+    analysis: Optional[Dict] = None
+
+class AppointmentRequest(BaseModel):
+    doctor_id: str
+    patient_name: str
+    patient_email: str
+    patient_phone: str
+    preferred_date: str
+    preferred_time: str
+    reason: str
+
+
+class HealthData(BaseModel):
+    age: float
+    gender: str
+    systolic_bp: float
+    diastolic_bp: float
+    blood_sugar: float
+    bmi: float
+    cholesterol: float
+    smoking: str
+    activity_level: str
+
+
+class HealthPrediction(BaseModel):
+    risk: str
+    explanation: str
+    recommendations: List[str]
 
 # Dependency to get stress detector
 def get_stress_detector():
@@ -285,8 +327,18 @@ async def ws_stream(websocket: WebSocket):
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    """Serve the main dashboard"""
-    # Read the advanced interactive frontend HTML
+    """Serve unified home page with navigation to Health and Stress modules."""
+    try:
+        with open("frontend/home.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        # Fallback to stress dashboard if home not found
+        return await stress_page()
+
+
+@app.get("/stress", response_class=HTMLResponse)
+async def stress_page():
+    """Serve the advanced stress dashboard."""
     try:
         with open("frontend/advanced_dashboard.html", "r", encoding="utf-8") as f:
             return f.read()
@@ -295,70 +347,23 @@ async def root():
             with open("frontend/index.html", "r", encoding="utf-8") as f:
                 return f.read()
         except FileNotFoundError:
-            # Fallback to simple page if frontend file not found
-            return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Stress Monitoring System</title>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-            <style>
-                body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
-                .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-                h1 { color: #333; text-align: center; margin-bottom: 30px; }
-                .api-info { background: #e8f4f8; padding: 20px; border-radius: 5px; margin: 20px 0; }
-                .endpoint { background: #f8f9fa; padding: 15px; margin: 10px 0; border-left: 4px solid #007bff; }
-                .method { font-weight: bold; color: #007bff; }
-                .description { margin-top: 5px; color: #666; }
-                .btn { background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px 5px; }
-                .btn:hover { background: #0056b3; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>🧠 Stress Monitoring System</h1>
-                <p style="text-align: center; color: #666; font-size: 18px;">
-                    AI/ML-powered stress detection with personalized recommendations
-                </p>
-                
-                <div class="api-info">
-                    <h2>API Endpoints</h2>
-                    
-                    <div class="endpoint">
-                        <div class="method">POST /api/stress/predict</div>
-                        <div class="description">Predict stress level based on user data</div>
-                    </div>
-                    
-                    <div class="endpoint">
-                        <div class="method">GET /api/recommendations</div>
-                        <div class="description">Get personalized recommendations for stress management</div>
-                    </div>
-                    
-                    <div class="endpoint">
-                        <div class="method">GET /api/emergency</div>
-                        <div class="description">Get immediate emergency stress relief recommendations</div>
-                    </div>
-                    
-                    <div class="endpoint">
-                        <div class="method">GET /api/weekly-plan</div>
-                        <div class="description">Get a weekly stress management plan</div>
-                    </div>
-                    
-                    <div class="endpoint">
-                        <div class="method">GET /api/health</div>
-                        <div class="description">Check system health and model status</div>
-                    </div>
-                </div>
-                
-                <div style="text-align: center; margin-top: 30px;">
-                    <a href="/docs" class="btn">📚 API Documentation</a>
-                    <a href="/api/health" class="btn">🔍 System Health</a>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
+            return HTMLResponse(
+                "<h1>Stress module UI not found</h1>",
+                status_code=500,
+            )
+
+
+@app.get("/health", response_class=HTMLResponse)
+async def health_page():
+    """Serve the health checkup UI."""
+    try:
+        with open("frontend/health_check.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return HTMLResponse(
+            "<h1>Health checkup UI not found</h1>",
+            status_code=500,
+        )
 
 @app.post("/api/stress/predict", response_model=StressPrediction)
 async def predict_stress(
@@ -471,6 +476,58 @@ async def health_check():
             "error": str(e),
             "version": "1.0.0"
         }
+
+
+@app.post("/api/health/predict", response_model=HealthPrediction)
+async def predict_health(data: HealthData):
+    """
+    Predict overall health risk using the AI Hackathon model.
+    """
+    try:
+        risk = predict_health_risk(
+            age=data.age,
+            gender=data.gender,
+            systolic_bp=data.systolic_bp,
+            diastolic_bp=data.diastolic_bp,
+            blood_sugar=data.blood_sugar,
+            bmi=data.bmi,
+            cholesterol=data.cholesterol,
+            smoking=data.smoking,
+            activity_level=data.activity_level,
+        )
+
+        explanation_map = {
+            "Low": "Your metrics are mostly within healthy ranges.",
+            "Medium": "Some metrics are elevated. Monitoring and lifestyle tweaks are advised.",
+            "High": "Multiple risk factors detected. Consult a healthcare professional.",
+        }
+        recommendations_map = {
+            "Low": [
+                "Maintain balanced diet and regular activity.",
+                "Keep routine health check-ups.",
+                "Stay hydrated and sleep 7-8 hours.",
+            ],
+            "Medium": [
+                "Increase physical activity to at least 150 minutes/week.",
+                "Reduce sugar and saturated fats; prioritize vegetables.",
+                "Monitor blood pressure and glucose regularly.",
+            ],
+            "High": [
+                "Consult a doctor for personalized guidance.",
+                "Adopt a heart-healthy diet (DASH/Mediterranean).",
+                "Avoid smoking and limit alcohol.",
+            ],
+        }
+
+        explanation = explanation_map.get(risk, "Risk level unavailable.")
+        recs = recommendations_map.get(risk, [])
+        return HealthPrediction(
+            risk=risk,
+            explanation=explanation,
+            recommendations=recs,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Health prediction failed: {str(e)}")
 
 @app.get("/api/sample-data")
 async def get_sample_data():
@@ -760,6 +817,311 @@ async def get_voice_interaction():
         "current_mood": "calm",
         "suggested_response": "I sense you might be feeling a bit overwhelmed. Would you like to try a quick breathing exercise together?"
     }
+
+# Symptom Analysis and AI Doctor Endpoints
+@app.post("/api/precautions/chat", response_model=SymptomChatResponse)
+async def symptom_chat(request: SymptomChatRequest):
+    """AI Doctor chat interface with real-time AI for medical questions"""
+    try:
+        conversation_history = request.conversation_history or []
+        
+        # Check for emergency keywords
+        sos = _triage_needs_sos(request.message)
+        if sos:
+            return SymptomChatResponse(
+                role="assistant",
+                content="This sounds urgent. Please seek immediate help: call local emergency services or visit the nearest ER. Try slow breathing while you get help: inhale 4s, hold 4s, exhale 6s.",
+                question=None,
+                needs_followup=False,
+                symptom=None,
+                analysis=None
+            )
+        
+        # Use real AI (Ollama) for medical conversations
+        ollama_host = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
+        url = f"{ollama_host.rstrip('/')}/api/generate"
+        
+        # Build context from conversation history
+        context = ""
+        if conversation_history:
+            context = "\n".join([
+                f"{'User' if msg.get('role') == 'user' else 'Assistant'}: {msg.get('content', '')}"
+                for msg in conversation_history[-6:]  # Last 6 messages for context
+            ])
+        
+        # Enhanced system prompt for medical AI
+        system_prompt = (
+            "You are a knowledgeable medical AI assistant. Your role is to:\n"
+            "1. Help users understand their symptoms and health concerns\n"
+            "2. Ask relevant follow-up questions to better understand their condition\n"
+            "3. Provide evidence-based dos and don'ts for their specific situation\n"
+            "4. Explain possible causes in simple terms\n"
+            "5. Know when to recommend seeing a doctor\n\n"
+            "Guidelines:\n"
+            "- Be empathetic and supportive\n"
+            "- Ask 1-2 specific follow-up questions when needed (e.g., 'What did you eat?', 'How long have you had this?', 'Any other symptoms?')\n"
+            "- Provide clear, actionable dos and don'ts\n"
+            "- Always remind users this is not a substitute for professional medical advice\n"
+            "- If symptoms are severe or persistent, recommend seeing a healthcare professional\n"
+            "- Keep responses concise but informative (2-4 sentences + questions/recommendations)\n"
+            "- For casual greetings, introduce yourself and ask how you can help\n"
+        )
+        
+        # Build the prompt
+        if context:
+            prompt = f"{system_prompt}\n\nPrevious conversation:\n{context}\n\nUser: {request.message}\nAssistant:"
+        else:
+            prompt = f"{system_prompt}\n\nUser: {request.message}\nAssistant:"
+        
+        payload = {
+            "model": os.getenv("OLLAMA_MODEL", "llama3"),
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0.7,  # Slightly higher for more natural conversation
+                "top_p": 0.9
+            }
+        }
+        
+        try:
+            r = requests.post(url, json=payload, timeout=60)
+            if not r.ok:
+                raise Exception("Ollama not reachable")
+            
+            data = r.json()
+            reply = (
+                data.get("response") or
+                data.get("message") or
+                (data.get("choices", [{}])[0] or {}).get("message", {}).get("content") or
+                ""
+            )
+            
+            if isinstance(reply, dict):
+                reply = reply.get("content", "")
+            
+            if not reply:
+                raise Exception("Empty response from Ollama")
+            
+            # Detect symptom from conversation for doctor recommendations
+            detected_symptom = symptom_analyzer.detect_symptom(request.message)
+            if not detected_symptom and conversation_history:
+                # Try to detect from conversation history
+                for msg in conversation_history:
+                    detected = symptom_analyzer.detect_symptom(msg.get("content", ""))
+                    if detected:
+                        detected_symptom = detected
+                        break
+            
+            # Determine if we need follow-up or can provide analysis
+            needs_followup = True
+            analysis = None
+            
+            # If we have enough context and a detected symptom, try to provide analysis
+            if detected_symptom and len(conversation_history) >= 2:
+                # Check if user seems to have provided enough info
+                message_lower = request.message.lower()
+                if any(keyword in message_lower for keyword in ["eat", "drank", "hours", "days", "pain", "feel", "symptom"]):
+                    # Generate analysis
+                    analysis = symptom_analyzer.analyze_symptoms(detected_symptom, conversation_history)
+                    needs_followup = False
+                    # Enhance AI reply with structured recommendations
+                    reply += f"\n\nBased on our conversation, here are some specific recommendations for {detected_symptom}:"
+            
+            return SymptomChatResponse(
+                role="assistant",
+                content=reply,
+                question=None,
+                needs_followup=needs_followup,
+                symptom=detected_symptom,
+                analysis=analysis
+            )
+            
+        except Exception as ai_error:
+            # If AI is unavailable, do NOT fall back to fixed questions.
+            # Instead, return a clear instruction to start Ollama so the user gets "real AI".
+            print(f"AI error in /api/precautions/chat: {ai_error}")
+            return SymptomChatResponse(
+                role="assistant",
+                content=(
+                    "Real-time AI is currently offline because Ollama is not reachable.\n\n"
+                    "To enable it:\n"
+                    "1) Install Ollama and start it (or run `ollama serve`).\n"
+                    "2) Pull a model: `ollama pull llama3` (or set OLLAMA_MODEL).\n"
+                    "3) Ensure it is running at `http://127.0.0.1:11434` (or set OLLAMA_HOST).\n\n"
+                    "After that, refresh this page and try again."
+                ),
+                question=None,
+                needs_followup=False,
+                symptom=None,
+                analysis=None,
+            )
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Symptom chat failed: {str(e)}")
+
+@app.get("/api/precautions/doctors")
+async def get_doctors(specialty: Optional[str] = None, symptom: Optional[str] = None):
+    """Get list of available doctors, optionally filtered by specialty or symptom"""
+    # Sample doctor database
+    all_doctors = [
+        {
+            "id": "doc_001",
+            "name": "Dr. Sarah Johnson",
+            "specialty": "General Medicine",
+            "qualifications": "MD, MBBS",
+            "experience": "15 years",
+            "rating": 4.8,
+            "available_slots": ["09:00", "10:00", "11:00", "14:00", "15:00"],
+            "location": "City Hospital, Downtown",
+            "phone": "+1-234-567-8901",
+            "email": "sarah.johnson@hospital.com"
+        },
+        {
+            "id": "doc_002",
+            "name": "Dr. Michael Chen",
+            "specialty": "Gastroenterology",
+            "qualifications": "MD, Gastroenterology",
+            "experience": "12 years",
+            "rating": 4.9,
+            "available_slots": ["09:30", "10:30", "13:00", "14:30", "16:00"],
+            "location": "Medical Center, Uptown",
+            "phone": "+1-234-567-8902",
+            "email": "michael.chen@hospital.com"
+        },
+        {
+            "id": "doc_003",
+            "name": "Dr. Emily Rodriguez",
+            "specialty": "General Medicine",
+            "qualifications": "MD, Internal Medicine",
+            "experience": "10 years",
+            "rating": 4.7,
+            "available_slots": ["08:00", "09:00", "10:00", "13:00", "14:00", "15:00"],
+            "location": "Community Clinic, Midtown",
+            "phone": "+1-234-567-8903",
+            "email": "emily.rodriguez@hospital.com"
+        },
+        {
+            "id": "doc_004",
+            "name": "Dr. James Wilson",
+            "specialty": "Neurology",
+            "qualifications": "MD, Neurology",
+            "experience": "18 years",
+            "rating": 4.9,
+            "available_slots": ["10:00", "11:00", "14:00", "15:00", "16:00"],
+            "location": "Neurology Center, Eastside",
+            "phone": "+1-234-567-8904",
+            "email": "james.wilson@hospital.com"
+        },
+        {
+            "id": "doc_005",
+            "name": "Dr. Priya Patel",
+            "specialty": "Pulmonology",
+            "qualifications": "MD, Pulmonology",
+            "experience": "14 years",
+            "rating": 4.8,
+            "available_slots": ["09:00", "10:30", "11:30", "14:00", "15:30"],
+            "location": "Respiratory Care Center",
+            "phone": "+1-234-567-8905",
+            "email": "priya.patel@hospital.com"
+        },
+        {
+            "id": "doc_006",
+            "name": "Dr. Robert Kim",
+            "specialty": "General Medicine",
+            "qualifications": "MD, Family Medicine",
+            "experience": "20 years",
+            "rating": 4.9,
+            "available_slots": ["08:30", "09:30", "10:30", "13:30", "14:30"],
+            "location": "Family Health Center",
+            "phone": "+1-234-567-8906",
+            "email": "robert.kim@hospital.com"
+        },
+        {
+            "id": "doc_007",
+            "name": "Dr. Lisa Anderson",
+            "specialty": "ENT",
+            "qualifications": "MD, ENT Specialist",
+            "experience": "11 years",
+            "rating": 4.7,
+            "available_slots": ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
+            "location": "ENT Clinic, Westside",
+            "phone": "+1-234-567-8907",
+            "email": "lisa.anderson@hospital.com"
+        },
+        {
+            "id": "doc_008",
+            "name": "Dr. David Thompson",
+            "specialty": "Gastroenterology",
+            "qualifications": "MD, Gastroenterology",
+            "experience": "16 years",
+            "rating": 4.8,
+            "available_slots": ["08:00", "09:00", "13:00", "14:00", "15:00"],
+            "location": "Digestive Health Institute",
+            "phone": "+1-234-567-8908",
+            "email": "david.thompson@hospital.com"
+        }
+    ]
+    
+    # Filter by specialty if provided
+    if specialty:
+        filtered = [d for d in all_doctors if specialty.lower() in d["specialty"].lower()]
+        return {"doctors": filtered}
+    
+    # Filter by symptom if provided
+    if symptom:
+        symptom_lower = symptom.lower()
+        symptom_specialties = {
+            "fever": ["General Medicine", "Internal Medicine"],
+            "stomach": ["Gastroenterology", "General Medicine"],
+            "headache": ["Neurology", "General Medicine"],
+            "cough": ["Pulmonology", "General Medicine"],
+            "cold": ["General Medicine", "ENT"]
+        }
+        
+        specialties = symptom_specialties.get(symptom_lower, ["General Medicine"])
+        filtered = [d for d in all_doctors if any(spec.lower() in d["specialty"].lower() for spec in specialties)]
+        return {"doctors": filtered}
+    
+    return {"doctors": all_doctors}
+
+@app.post("/api/precautions/appointment")
+async def book_appointment(request: AppointmentRequest):
+    """Book an appointment with a doctor"""
+    try:
+        # In a real system, this would save to a database
+        # For now, we'll simulate a successful booking
+        appointment_id = f"APT_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        
+        return {
+            "success": True,
+            "appointment_id": appointment_id,
+            "message": f"Appointment booked successfully! Your appointment ID is {appointment_id}",
+            "details": {
+                "doctor_id": request.doctor_id,
+                "patient_name": request.patient_name,
+                "patient_email": request.patient_email,
+                "patient_phone": request.patient_phone,
+                "preferred_date": request.preferred_date,
+                "preferred_time": request.preferred_time,
+                "reason": request.reason,
+                "status": "Confirmed",
+                "booking_date": datetime.now().isoformat()
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Appointment booking failed: {str(e)}")
+
+@app.get("/precautions", response_class=HTMLResponse)
+async def precautions_page():
+    """Serve the Precautions/AI Doctor page"""
+    try:
+        with open("frontend/precautions.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="Precautions page not found"
+        )
 
 if __name__ == "__main__":
     uvicorn.run(

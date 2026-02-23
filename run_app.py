@@ -16,7 +16,8 @@ from config import Config
 def main():
     """Run the stress monitoring application"""
     
-    print("🧠 Starting Stress Monitoring System...")
+    # Avoid UnicodeEncodeError on Windows consoles with non-UTF8 encodings (e.g., cp1252)
+    print("Starting Stress Monitoring System...")
     print("=" * 50)
     
     # Check if models exist, if not train them
@@ -28,13 +29,13 @@ def main():
     
     # Check OpenAI API key
     if not Config.OPENAI_API_KEY:
-        print("⚠️  Warning: OpenAI API key not found.")
+        print("Warning: OpenAI API key not found.")
         print("   The recommendation engine will use fallback recommendations.")
         print("   To enable AI-powered recommendations, set your OPENAI_API_KEY in the environment.")
     
-    print(f"🚀 Starting server on {Config.API_HOST}:{Config.API_PORT}")
-    print(f"📊 Dashboard: http://{Config.API_HOST}:{Config.API_PORT}")
-    print(f"📚 API Docs: http://{Config.API_HOST}:{Config.API_PORT}/docs")
+    print(f"Starting server on {Config.API_HOST}:{Config.API_PORT}")
+    print(f"Dashboard: http://{Config.API_HOST}:{Config.API_PORT}")
+    print(f"API Docs: http://{Config.API_HOST}:{Config.API_PORT}/docs")
     print("=" * 50)
     
     # Run the application
